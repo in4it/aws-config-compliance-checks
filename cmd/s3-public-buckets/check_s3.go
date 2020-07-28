@@ -30,9 +30,11 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 		fmt.Println("Error: ", err)
 	}
 
-	if isApplicable(m, configEvent) {
+	if isApplicable(m["configurationItem"], configEvent) {
+		fmt.Println("Resource APPLICABLE for Compliance check")
 		status = evaluateCompliance(m["configurationItem"])
 	} else {
+		fmt.Println("Resource NOT_APPLICABLE for Compliance check")
 		status = "NOT_APPLICABLE"
 	}
 
@@ -63,7 +65,10 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 	putEvaluations := &configservice.PutEvaluationsInput{
 		Evaluations: evaluations,
 		ResultToken: aws.String(configEvent.ResultToken),
+		TestMode:    aws.Bool(false),
 	}
+
+	fmt.Printf("Evaluation: %s\n%s\n%", evaluations, configEvent.ResultToken)
 
 	out, err := svc.PutEvaluations(putEvaluations)
 
@@ -76,13 +81,17 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 
 func evaluateCompliance(c interface{}) string {
 
+	fmt.Println("Starting Evaluation Complaiance")
+
 	if c.(map[string]interface{})["resourceType"] != "AWS::S3::Bucket" {
+		fmt.Println("Resource NOT_APPLICABLE")
 		return "NOT_APPLICABLE"
 	}
 
 	sc := c.(map[string]interface{})["supplementaryConfiguration"]
 
 	if !checkDefined(sc, "PublicAccessBlockConfiguration") {
+		fmt.Println("Resource NON_COMPLIANT")
 		return "NON_COMPLIANT"
 	}
 
@@ -99,9 +108,11 @@ func evaluateCompliance(c interface{}) string {
 	fmt.Printf("blockPublicAcls %v\n", restrictPublicBuckets)
 
 	if blockPublicAcls == true && ignorePublicAcls == true && blockPublicPolicy == true && restrictPublicBuckets == true {
+		fmt.Println("Resource COMPLIANT")
 		return "COMPLIANT"
 	}
 
+	fmt.Println("Resource COMPLIANT")
 	return "NON_COMPLIANT"
 }
 
@@ -127,8 +138,9 @@ func checkDefined(m interface{}, k string) bool {
 func isApplicable(s interface{}, e events.ConfigEvent) bool {
 
 	status := s.(map[string]interface{})["configurationItemStatus"]
-
+	fmt.Println("Resource status:", status)
 	if e.EventLeftScope == false && status == "OK" || status == "ResourceDiscovered" {
+		fmt.Println("Returning status:", status)
 		return true
 	}
 	return false
