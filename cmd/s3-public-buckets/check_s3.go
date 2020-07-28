@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -13,6 +14,10 @@ import (
 	"github.com/aws/aws-sdk-go/service/configservice"
 )
 
+type invokingEvent map[string]interface{}
+type configurationItem map[string]interface{}
+type supplementaryConfiguration map[string]interface{}
+
 func main() {
 	lambda.Start(handleRequest)
 }
@@ -21,8 +26,11 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 	fmt.Printf("AWS Config rule: %s\n", configEvent.ConfigRuleName)
 	fmt.Printf("Invoking event JSON: %s\n", configEvent.InvokingEvent)
 	fmt.Printf("Event version: %s\n", configEvent.Version)
+	fmt.Printf("Params: %s\n", configEvent.RuleParameters)
 
 	var status string
+	var m invokingEvent
+	var ci configurationItem
 
 	m, err := getInvokingEvent([]byte(configEvent.InvokingEvent))
 
@@ -30,9 +38,20 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 		fmt.Println("Error: ", err)
 	}
 
-	if isApplicable(m["configurationItem"], configEvent) {
+	ci = m["configurationItem"].(map[string]interface{})
+
+	if params := getParams(configEvent); params != nil {
+		for _, v := range params {
+			if v == ci["resourceName"] {
+				fmt.Println("Skiping over Compliance check for resource", v, "Params: ignored")
+				status = "NOT_APPLICABLE"
+			}
+		}
+	}
+
+	if isApplicable(ci, configEvent) && status == "" {
 		fmt.Println("Resource APPLICABLE for Compliance check")
-		status = evaluateCompliance(m["configurationItem"])
+		status = evaluateCompliance(ci)
 	} else {
 		fmt.Println("Resource NOT_APPLICABLE for Compliance check")
 		status = "NOT_APPLICABLE"
@@ -43,7 +62,7 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 
 	var evaluations []*configservice.Evaluation
 
-	sTime := m["configurationItem"].(map[string]interface{})["configurationItemCaptureTime"]
+	sTime := ci["configurationItemCaptureTime"]
 	t, err := parseTime(sTime.(string))
 
 	if err != nil {
@@ -51,8 +70,8 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 		return
 	}
 
-	complianceResourceID := m["configurationItem"].(map[string]interface{})["resourceId"]
-	complianceResourceType := m["configurationItem"].(map[string]interface{})["resourceType"]
+	complianceResourceID := ci["resourceId"]
+	complianceResourceType := ci["resourceType"]
 
 	evaluation := &configservice.Evaluation{
 		ComplianceResourceId:   aws.String(complianceResourceID.(string)),
@@ -68,7 +87,7 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 		TestMode:    aws.Bool(false),
 	}
 
-	fmt.Printf("Evaluation: %s\n%s\n%", evaluations, configEvent.ResultToken)
+	fmt.Printf("Evaluation: %s\n%s\n", evaluations, configEvent.ResultToken)
 
 	out, err := svc.PutEvaluations(putEvaluations)
 
@@ -79,28 +98,29 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 	fmt.Printf("Evaluation compleated: %s\n", out)
 }
 
-func evaluateCompliance(c interface{}) string {
+func evaluateCompliance(c configurationItem) string {
 
 	fmt.Println("Starting Evaluation Complaiance")
 
-	if c.(map[string]interface{})["resourceType"] != "AWS::S3::Bucket" {
+	var sc supplementaryConfiguration
+
+	if c["resourceType"] != "AWS::S3::Bucket" {
 		fmt.Println("Resource NOT_APPLICABLE")
 		return "NOT_APPLICABLE"
 	}
 
-	sc := c.(map[string]interface{})["supplementaryConfiguration"]
-
-	if !checkDefined(sc, "PublicAccessBlockConfiguration") {
+	if !checkDefined(c["supplementaryConfiguration"], "PublicAccessBlockConfiguration") {
 		fmt.Println("Resource NON_COMPLIANT")
 		return "NON_COMPLIANT"
 	}
 
-	pacl := sc.(map[string]interface{})["PublicAccessBlockConfiguration"]
+	sc = c["supplementaryConfiguration"].(map[string]interface{})
+	pacl := sc["PublicAccessBlockConfiguration"].(map[string]interface{})
 
-	blockPublicAcls := pacl.(map[string]interface{})["blockPublicAcls"]
-	ignorePublicAcls := pacl.(map[string]interface{})["ignorePublicAcls"]
-	blockPublicPolicy := pacl.(map[string]interface{})["blockPublicPolicy"]
-	restrictPublicBuckets := pacl.(map[string]interface{})["restrictPublicBuckets"]
+	blockPublicAcls := pacl["blockPublicAcls"]
+	ignorePublicAcls := pacl["ignorePublicAcls"]
+	blockPublicPolicy := pacl["blockPublicPolicy"]
+	restrictPublicBuckets := pacl["restrictPublicBuckets"]
 
 	fmt.Printf("blockPublicAcls %v\n", blockPublicAcls)
 	fmt.Printf("blockPublicAcls %v\n", ignorePublicAcls)
@@ -116,8 +136,8 @@ func evaluateCompliance(c interface{}) string {
 	return "NON_COMPLIANT"
 }
 
-func getInvokingEvent(event []byte) (map[string]interface{}, error) {
-	var result map[string]interface{}
+func getInvokingEvent(event []byte) (invokingEvent, error) {
+	var result invokingEvent
 	err := json.Unmarshal(event, &result)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -128,16 +148,19 @@ func getInvokingEvent(event []byte) (map[string]interface{}, error) {
 }
 
 func checkDefined(m interface{}, k string) bool {
+	fmt.Println("Checking if defined:", k)
 	_, ok := m.(map[string]interface{})[k]
 	if ok {
+		fmt.Println(k, "is defined")
 		return true
 	}
+	fmt.Println(k, "is not defined")
 	return false
 }
 
-func isApplicable(s interface{}, e events.ConfigEvent) bool {
+func isApplicable(s configurationItem, e events.ConfigEvent) bool {
 
-	status := s.(map[string]interface{})["configurationItemStatus"]
+	status := s["configurationItemStatus"]
 	fmt.Println("Resource status:", status)
 	if e.EventLeftScope == false && status == "OK" || status == "ResourceDiscovered" {
 		fmt.Println("Returning status:", status)
@@ -145,6 +168,23 @@ func isApplicable(s interface{}, e events.ConfigEvent) bool {
 	}
 	return false
 
+}
+
+func getParams(p events.ConfigEvent) []string {
+	if p.RuleParameters != "" {
+		var result map[string]string
+		err := json.Unmarshal([]byte(p.RuleParameters), &result)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return nil
+		}
+		if _, ok := result["ignored"]; ok {
+			ignoredBuckets := strings.Split(result["ignored"], ",")
+			return ignoredBuckets
+		}
+		return nil
+	}
+	return nil
 }
 
 func parseTime(s string) (time.Time, error) {

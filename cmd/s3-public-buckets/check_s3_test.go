@@ -61,12 +61,15 @@ func TestIfApplicable(t *testing.T) {
 		return
 	}
 
+	var ci configurationItem
+	ci = m["configurationItem"].(map[string]interface{})
+
 	e := events.ConfigEvent{
 		EventLeftScope: false,
 		ResultToken:    "myResultToken",
 	}
 
-	if a := isApplicable(m["configurationItem"], e); !a {
+	if a := isApplicable(ci, e); !a {
 		t.Errorf("error: Resource NOT_APPLICABLE should be APPLICABLE")
 		return
 	}
@@ -82,12 +85,15 @@ func TestIfNotApplicable(t *testing.T) {
 		return
 	}
 
+	var ci configurationItem
+	ci = m["configurationItem"].(map[string]interface{})
+
 	e := events.ConfigEvent{
 		EventLeftScope: true,
 		ResultToken:    "myResultToken",
 	}
 
-	if a := isApplicable(m["configurationItem"], e); a {
+	if a := isApplicable(ci, e); a {
 		t.Errorf("error: Resource NOT_APPLICABLE should be APPLICABLE")
 		return
 	}
@@ -102,8 +108,10 @@ func TestEvaluateComplianceNotComplaiant(t *testing.T) {
 		t.Errorf("error: %s", err)
 		return
 	}
+	var ci configurationItem
+	ci = m["configurationItem"].(map[string]interface{})
 
-	resp := evaluateCompliance(m["configurationItem"])
+	resp := evaluateCompliance(ci)
 	fmt.Println(resp)
 
 	if resp == "COMPLIANT" {
@@ -122,7 +130,10 @@ func TestEvaluateComplianceComplaiant(t *testing.T) {
 		return
 	}
 
-	resp := evaluateCompliance(m["configurationItem"])
+	var ci configurationItem
+	ci = m["configurationItem"].(map[string]interface{})
+
+	resp := evaluateCompliance(ci)
 
 	if resp == "COMPLIANT" {
 		t.Errorf("error: Resource COMPLAIANT, should be NOT_COMPLAIANT")
@@ -149,5 +160,37 @@ func TestTimeParser(t *testing.T) {
 	}
 
 	fmt.Println(pTime)
+
+}
+
+func TestParams(t *testing.T) {
+	e := events.ConfigEvent{
+		EventLeftScope: true,
+		ResultToken:    "myResultToken",
+		RuleParameters: "{\"ignored\":\"testBucket1,testBucket2\"}",
+	}
+
+	status := ""
+	params := getParams(e)
+
+	if len(params) != 2 {
+		t.Errorf("Error: expected 2 results")
+		return
+	}
+
+	fmt.Println("Ignored buckets:", params)
+
+	if params := getParams(e); params != nil {
+		for _, v := range params {
+			if v == "testBucket1" {
+				status = "NOT_APPLICABLE"
+			}
+		}
+	}
+
+	if status != "NOT_APPLICABLE" {
+		t.Errorf("Error: Wrong status should be NOT_APPLICABLE")
+		return
+	}
 
 }
