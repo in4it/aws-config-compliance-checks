@@ -130,3 +130,24 @@ func TestEvaluateComplianceComplaiant(t *testing.T) {
 	}
 
 }
+
+func TestTimeParser(t *testing.T) {
+	data, _ := ioutil.ReadFile("test/request_update.json")
+	m, err := getInvokingEvent(data)
+
+	if err != nil {
+		t.Errorf("error: %s", err)
+		return
+	}
+
+	sTime := m["configurationItem"].(map[string]interface{})["configurationItemCaptureTime"]
+	pTime, err := parseTime(sTime.(string))
+
+	if err != nil {
+		t.Errorf("error: %s", err)
+		return
+	}
+
+	fmt.Println(pTime)
+
+}

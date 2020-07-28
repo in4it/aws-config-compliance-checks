@@ -42,10 +42,11 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 	var evaluations []*configservice.Evaluation
 
 	sTime := m["configurationItem"].(map[string]interface{})["configurationItemCaptureTime"]
-	layout := "2020-07-27T13:57:15.776Z"
-	t, err := time.Parse(layout, sTime.(string))
+	t, err := parseTime(sTime.(string))
+
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	complianceResourceID := m["configurationItem"].(map[string]interface{})["resourceId"]
@@ -132,4 +133,14 @@ func isApplicable(s interface{}, e events.ConfigEvent) bool {
 	}
 	return false
 
+}
+
+func parseTime(s string) (time.Time, error) {
+	t, err := time.Parse(time.RFC3339, s)
+	if err != nil {
+		fmt.Println(err)
+		return t, err
+	}
+
+	return t, nil
 }
