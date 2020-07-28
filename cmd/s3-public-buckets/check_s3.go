@@ -95,7 +95,7 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 		fmt.Println("Error:", err)
 	}
 
-	fmt.Printf("Evaluation compleated: %s\n", out)
+	fmt.Printf("Evaluation completed: %s\n", out)
 }
 
 func evaluateCompliance(c configurationItem) string {
