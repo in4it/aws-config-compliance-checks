@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
-func TestData(t *testing.T) {
+func TestDataCreate(t *testing.T) {
 	data, _ := ioutil.ReadFile("test/request_create.json")
 	m, err := getInvokingEvent(data)
 
@@ -16,43 +16,38 @@ func TestData(t *testing.T) {
 		t.Errorf("error: %s", err)
 		return
 	}
-	if len(m) == 0 {
-		t.Errorf("error: Key not found")
-		return
-	}
-	fmt.Println(m["configurationItem"].(map[string]interface{})["resourceId"])
+
+	fmt.Println(m.ConfigurationItem.ResourceID)
 
 }
 
-func TestCheckDefined(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_create.json")
+func TestDataUpdate(t *testing.T) {
+	data, _ := ioutil.ReadFile("test/request_update.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
 		t.Errorf("error: %s", err)
 		return
 	}
-	if len(m) == 0 {
-		t.Errorf("error: Key not found")
-		return
-	}
-	ok := checkDefined(m["configurationItem"], "resourceName")
 
-	if !ok {
-		t.Errorf("error: Key not found: resourceName")
-		return
-	}
-	fmt.Println(m["configurationItem"].(map[string]interface{})["resourceName"])
+	fmt.Println(m.ConfigurationItem.ResourceID)
 
-	ok = checkDefined(m["configurationItem"], "something")
-
-	if ok {
-		t.Errorf("error: Not existing fey found")
-		return
-	}
 }
 
-func TestIfApplicable(t *testing.T) {
+func TestDataDelete(t *testing.T) {
+	data, _ := ioutil.ReadFile("test/request_delete.json")
+	m, err := getInvokingEvent(data)
+
+	if err != nil {
+		t.Errorf("error: %s", err)
+		return
+	}
+
+	fmt.Println(m.ConfigurationItem.ResourceID)
+
+}
+
+func TestIfApplicableOnCreate(t *testing.T) {
 	data, _ := ioutil.ReadFile("test/request_create.json")
 	m, err := getInvokingEvent(data)
 
@@ -61,8 +56,30 @@ func TestIfApplicable(t *testing.T) {
 		return
 	}
 
-	var ci configurationItem
-	ci = m["configurationItem"].(map[string]interface{})
+	ci := m.ConfigurationItem
+
+	e := events.ConfigEvent{
+		EventLeftScope: false,
+		ResultToken:    "myResultToken",
+	}
+
+	if a := isApplicable(ci, e); !a {
+		t.Errorf("error: Resource NOT_APPLICABLE should be APPLICABLE")
+		return
+	}
+
+}
+
+func TestIfApplicableOnUpdate(t *testing.T) {
+	data, _ := ioutil.ReadFile("test/request_update.json")
+	m, err := getInvokingEvent(data)
+
+	if err != nil {
+		t.Errorf("error: %s", err)
+		return
+	}
+
+	ci := m.ConfigurationItem
 
 	e := events.ConfigEvent{
 		EventLeftScope: false,
@@ -85,8 +102,7 @@ func TestIfNotApplicable(t *testing.T) {
 		return
 	}
 
-	var ci configurationItem
-	ci = m["configurationItem"].(map[string]interface{})
+	ci := m.ConfigurationItem
 
 	e := events.ConfigEvent{
 		EventLeftScope: true,
@@ -108,8 +124,29 @@ func TestEvaluateComplianceNotComplaiant(t *testing.T) {
 		t.Errorf("error: %s", err)
 		return
 	}
-	var ci configurationItem
-	ci = m["configurationItem"].(map[string]interface{})
+
+	ci := m.ConfigurationItem
+
+	resp := evaluateCompliance(ci)
+	fmt.Println(resp)
+
+	if resp == "COMPLIANT" {
+		t.Errorf("error: Resource COMPLAIANT, should be NOT_COMPLAIANT")
+		return
+	}
+
+}
+
+func TestEvaluateComplianceNotApplicable(t *testing.T) {
+	data, _ := ioutil.ReadFile("test/request_delete.json")
+	m, err := getInvokingEvent(data)
+
+	if err != nil {
+		t.Errorf("error: %s", err)
+		return
+	}
+
+	ci := m.ConfigurationItem
 
 	resp := evaluateCompliance(ci)
 	fmt.Println(resp)
@@ -130,8 +167,7 @@ func TestEvaluateComplianceComplaiant(t *testing.T) {
 		return
 	}
 
-	var ci configurationItem
-	ci = m["configurationItem"].(map[string]interface{})
+	ci := m.ConfigurationItem
 
 	resp := evaluateCompliance(ci)
 
@@ -139,27 +175,6 @@ func TestEvaluateComplianceComplaiant(t *testing.T) {
 		t.Errorf("error: Resource COMPLAIANT, should be NOT_COMPLAIANT")
 		return
 	}
-
-}
-
-func TestTimeParser(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_update.json")
-	m, err := getInvokingEvent(data)
-
-	if err != nil {
-		t.Errorf("error: %s", err)
-		return
-	}
-
-	sTime := m["configurationItem"].(map[string]interface{})["configurationItemCaptureTime"]
-	pTime, err := parseTime(sTime.(string))
-
-	if err != nil {
-		t.Errorf("error: %s", err)
-		return
-	}
-
-	fmt.Println(pTime)
 
 }
 
