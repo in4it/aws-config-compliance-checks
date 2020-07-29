@@ -167,11 +167,11 @@ func TestParams(t *testing.T) {
 	e := events.ConfigEvent{
 		EventLeftScope: true,
 		ResultToken:    "myResultToken",
-		RuleParameters: "{\"ignored\":\"testBucket1,testBucket2\"}",
+		RuleParameters: "{\"excludeBuckets\":\"testBucket1,testBucket2\"}",
 	}
 
 	status := ""
-	params := getParams(e)
+	params := getParams(e, "excludeBuckets")
 
 	if len(params) != 2 {
 		t.Errorf("Error: expected 2 results")
@@ -180,7 +180,7 @@ func TestParams(t *testing.T) {
 
 	fmt.Println("Ignored buckets:", params)
 
-	if params := getParams(e); params != nil {
+	if params := getParams(e, "excludeBuckets"); params != nil {
 		for _, v := range params {
 			if v == "testBucket1" {
 				status = "NOT_APPLICABLE"

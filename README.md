@@ -4,6 +4,6 @@
 Checks if "Block all public access" is set for s3 buckets
 
 Params:
-- ignored: Skip compliance check for listed buckets
-    - key: ignored
-    - value: Comma separated list of buckets, e.g bucket1, bucket2
+- excludeBuckets: Skip compliance check for listed buckets
+    - key: excludeBuckets
+    - value: Comma separated list of buckets, e.g "bucket1, bucket2"

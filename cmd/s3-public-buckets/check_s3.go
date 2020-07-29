@@ -40,7 +40,7 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 
 	ci = m["configurationItem"].(map[string]interface{})
 
-	if params := getParams(configEvent); params != nil {
+	if params := getParams(configEvent, "excludeBuckets"); params != nil {
 		for _, v := range params {
 			if v == ci["resourceName"] {
 				fmt.Println("Skiping over Compliance check for resource", v, "Params: ignored")
@@ -170,7 +170,7 @@ func isApplicable(s configurationItem, e events.ConfigEvent) bool {
 
 }
 
-func getParams(p events.ConfigEvent) []string {
+func getParams(p events.ConfigEvent, param string) []string {
 	if p.RuleParameters != "" {
 		var result map[string]string
 		err := json.Unmarshal([]byte(p.RuleParameters), &result)
@@ -178,9 +178,9 @@ func getParams(p events.ConfigEvent) []string {
 			fmt.Println("Error:", err)
 			return nil
 		}
-		if _, ok := result["ignored"]; ok {
-			ignoredBuckets := strings.Split(result["ignored"], ",")
-			return ignoredBuckets
+		if _, ok := result[param]; ok {
+			value := strings.Split(result[param], ",")
+			return value
 		}
 		return nil
 	}
