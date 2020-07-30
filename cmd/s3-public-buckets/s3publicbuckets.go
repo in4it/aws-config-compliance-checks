@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -21,18 +21,32 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 	fmt.Printf("AWS Config rule: %s\n", configEvent.ConfigRuleName)
 	fmt.Printf("Invoking event JSON: %s\n", configEvent.InvokingEvent)
 	fmt.Printf("Event version: %s\n", configEvent.Version)
+	fmt.Printf("Params: %s\n", configEvent.RuleParameters)
 
 	var status string
+	var invokingEvent InvokingEvent
+	var configurationItem ConfigurationItem
 
-	m, err := getInvokingEvent([]byte(configEvent.InvokingEvent))
+	invokingEvent, err := getInvokingEvent([]byte(configEvent.InvokingEvent))
 
 	if err != nil {
 		fmt.Println("Error: ", err)
 	}
 
-	if isApplicable(m["configurationItem"], configEvent) {
+	configurationItem = invokingEvent.ConfigurationItem
+
+	if params := getParams(configEvent, "excludeBuckets"); params != nil {
+		for _, v := range params {
+			if v == configurationItem.ResourceName {
+				fmt.Println("Skiping over Compliance check for resource", v, "Params: ignored")
+				status = "NOT_APPLICABLE"
+			}
+		}
+	}
+
+	if isApplicable(configurationItem, configEvent) && status == "" {
 		fmt.Println("Resource APPLICABLE for Compliance check")
-		status = evaluateCompliance(m["configurationItem"])
+		status = evaluateCompliance(configurationItem)
 	} else {
 		fmt.Println("Resource NOT_APPLICABLE for Compliance check")
 		status = "NOT_APPLICABLE"
@@ -43,22 +57,16 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 
 	var evaluations []*configservice.Evaluation
 
-	sTime := m["configurationItem"].(map[string]interface{})["configurationItemCaptureTime"]
-	t, err := parseTime(sTime.(string))
-
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	complianceResourceID := m["configurationItem"].(map[string]interface{})["resourceId"]
-	complianceResourceType := m["configurationItem"].(map[string]interface{})["resourceType"]
-
 	evaluation := &configservice.Evaluation{
-		ComplianceResourceId:   aws.String(complianceResourceID.(string)),
-		ComplianceResourceType: aws.String(complianceResourceType.(string)),
+		ComplianceResourceId:   aws.String(configurationItem.ResourceID),
+		ComplianceResourceType: aws.String(configurationItem.ResourceType),
 		ComplianceType:         aws.String(status),
-		OrderingTimestamp:      aws.Time(t),
+		OrderingTimestamp:      aws.Time(configurationItem.ConfigurationItemCaptureTime),
 	}
 
 	evaluations = append(evaluations, evaluation)
@@ -68,7 +76,7 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 		TestMode:    aws.Bool(false),
 	}
 
-	fmt.Printf("Evaluation: %s\n%s\n%", evaluations, configEvent.ResultToken)
+	fmt.Printf("Evaluation: %s\n%s\n", evaluations, configEvent.ResultToken)
 
 	out, err := svc.PutEvaluations(putEvaluations)
 
@@ -76,31 +84,22 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 		fmt.Println("Error:", err)
 	}
 
-	fmt.Printf("Evaluation compleated: %s\n", out)
+	fmt.Printf("Evaluation completed: %s\n", out)
 }
 
-func evaluateCompliance(c interface{}) string {
+func evaluateCompliance(c ConfigurationItem) string {
 
 	fmt.Println("Starting Evaluation Complaiance")
 
-	if c.(map[string]interface{})["resourceType"] != "AWS::S3::Bucket" {
+	if c.ResourceType != "AWS::S3::Bucket" {
 		fmt.Println("Resource NOT_APPLICABLE")
 		return "NOT_APPLICABLE"
 	}
 
-	sc := c.(map[string]interface{})["supplementaryConfiguration"]
-
-	if !checkDefined(sc, "PublicAccessBlockConfiguration") {
-		fmt.Println("Resource NON_COMPLIANT")
-		return "NON_COMPLIANT"
-	}
-
-	pacl := sc.(map[string]interface{})["PublicAccessBlockConfiguration"]
-
-	blockPublicAcls := pacl.(map[string]interface{})["blockPublicAcls"]
-	ignorePublicAcls := pacl.(map[string]interface{})["ignorePublicAcls"]
-	blockPublicPolicy := pacl.(map[string]interface{})["blockPublicPolicy"]
-	restrictPublicBuckets := pacl.(map[string]interface{})["restrictPublicBuckets"]
+	blockPublicAcls := c.SupplementaryConfiguration.PublicAccessBlockConfiguration.BlockPublicAcls
+	ignorePublicAcls := c.SupplementaryConfiguration.PublicAccessBlockConfiguration.IgnorePublicAcls
+	blockPublicPolicy := c.SupplementaryConfiguration.PublicAccessBlockConfiguration.BlockPublicPolicy
+	restrictPublicBuckets := c.SupplementaryConfiguration.PublicAccessBlockConfiguration.RestrictPublicBuckets
 
 	fmt.Printf("blockPublicAcls %v\n", blockPublicAcls)
 	fmt.Printf("blockPublicAcls %v\n", ignorePublicAcls)
@@ -116,28 +115,20 @@ func evaluateCompliance(c interface{}) string {
 	return "NON_COMPLIANT"
 }
 
-func getInvokingEvent(event []byte) (map[string]interface{}, error) {
-	var result map[string]interface{}
+func getInvokingEvent(event []byte) (InvokingEvent, error) {
+	var result InvokingEvent
 	err := json.Unmarshal(event, &result)
 	if err != nil {
 		fmt.Println("Error:", err)
-		return nil, err
+		return result, err
 	}
 
 	return result, nil
 }
 
-func checkDefined(m interface{}, k string) bool {
-	_, ok := m.(map[string]interface{})[k]
-	if ok {
-		return true
-	}
-	return false
-}
+func isApplicable(c ConfigurationItem, e events.ConfigEvent) bool {
 
-func isApplicable(s interface{}, e events.ConfigEvent) bool {
-
-	status := s.(map[string]interface{})["configurationItemStatus"]
+	status := c.ConfigurationItemStatus
 	fmt.Println("Resource status:", status)
 	if e.EventLeftScope == false && status == "OK" || status == "ResourceDiscovered" {
 		fmt.Println("Returning status:", status)
@@ -147,12 +138,19 @@ func isApplicable(s interface{}, e events.ConfigEvent) bool {
 
 }
 
-func parseTime(s string) (time.Time, error) {
-	t, err := time.Parse(time.RFC3339, s)
-	if err != nil {
-		fmt.Println(err)
-		return t, err
+func getParams(p events.ConfigEvent, param string) []string {
+	if p.RuleParameters != "" {
+		var result map[string]string
+		err := json.Unmarshal([]byte(p.RuleParameters), &result)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return nil
+		}
+		if _, ok := result[param]; ok {
+			value := strings.Split(result[param], ",")
+			return value
+		}
+		return nil
 	}
-
-	return t, nil
+	return nil
 }
