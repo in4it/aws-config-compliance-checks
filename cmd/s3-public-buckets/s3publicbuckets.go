@@ -18,11 +18,6 @@ func main() {
 }
 
 func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
-	fmt.Printf("AWS Config rule: %s\n", configEvent.ConfigRuleName)
-	fmt.Printf("Invoking event JSON: %s\n", configEvent.InvokingEvent)
-	fmt.Printf("Event version: %s\n", configEvent.Version)
-	fmt.Printf("Params: %s\n", configEvent.RuleParameters)
-
 	var status string
 	var invokingEvent InvokingEvent
 	var configurationItem ConfigurationItem
@@ -30,7 +25,7 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 	invokingEvent, err := getInvokingEvent([]byte(configEvent.InvokingEvent))
 
 	if err != nil {
-		fmt.Println("Error: ", err)
+		panic(err)
 	}
 
 	configurationItem = invokingEvent.ConfigurationItem
@@ -38,17 +33,15 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 	if params := getParams(configEvent, "excludeBuckets"); params != nil {
 		for _, v := range params {
 			if v == configurationItem.ResourceName {
-				fmt.Println("Skiping over Compliance check for resource", v, "Params: ignored")
+				fmt.Println("Skiping over Compliance check for resource", v, "Params: excludeBuckets")
 				status = "NOT_APPLICABLE"
 			}
 		}
 	}
 
 	if isApplicable(configurationItem, configEvent) && status == "" {
-		fmt.Println("Resource APPLICABLE for Compliance check")
 		status = evaluateCompliance(configurationItem)
 	} else {
-		fmt.Println("Resource NOT_APPLICABLE for Compliance check")
 		status = "NOT_APPLICABLE"
 	}
 
@@ -56,11 +49,6 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 	svc := configservice.New(cSession)
 
 	var evaluations []*configservice.Evaluation
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 
 	evaluation := &configservice.Evaluation{
 		ComplianceResourceId:   aws.String(configurationItem.ResourceID),
@@ -76,23 +64,16 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 		TestMode:    aws.Bool(false),
 	}
 
-	fmt.Printf("Evaluation: %s\n%s\n", evaluations, configEvent.ResultToken)
-
-	out, err := svc.PutEvaluations(putEvaluations)
+	_, err = svc.PutEvaluations(putEvaluations)
 
 	if err != nil {
 		fmt.Println("Error:", err)
+		return
 	}
-
-	fmt.Printf("Evaluation completed: %s\n", out)
 }
 
 func evaluateCompliance(c ConfigurationItem) string {
-
-	fmt.Println("Starting Evaluation Complaiance")
-
 	if c.ResourceType != "AWS::S3::Bucket" {
-		fmt.Println("Resource NOT_APPLICABLE")
 		return "NOT_APPLICABLE"
 	}
 
@@ -101,17 +82,9 @@ func evaluateCompliance(c ConfigurationItem) string {
 	blockPublicPolicy := c.SupplementaryConfiguration.PublicAccessBlockConfiguration.BlockPublicPolicy
 	restrictPublicBuckets := c.SupplementaryConfiguration.PublicAccessBlockConfiguration.RestrictPublicBuckets
 
-	fmt.Printf("blockPublicAcls %v\n", blockPublicAcls)
-	fmt.Printf("blockPublicAcls %v\n", ignorePublicAcls)
-	fmt.Printf("blockPublicAcls %v\n", blockPublicPolicy)
-	fmt.Printf("blockPublicAcls %v\n", restrictPublicBuckets)
-
 	if blockPublicAcls == true && ignorePublicAcls == true && blockPublicPolicy == true && restrictPublicBuckets == true {
-		fmt.Println("Resource COMPLIANT")
 		return "COMPLIANT"
 	}
-
-	fmt.Println("Resource COMPLIANT")
 	return "NON_COMPLIANT"
 }
 
@@ -127,11 +100,8 @@ func getInvokingEvent(event []byte) (InvokingEvent, error) {
 }
 
 func isApplicable(c ConfigurationItem, e events.ConfigEvent) bool {
-
 	status := c.ConfigurationItemStatus
-	fmt.Println("Resource status:", status)
 	if e.EventLeftScope == false && status == "OK" || status == "ResourceDiscovered" {
-		fmt.Println("Returning status:", status)
 		return true
 	}
 	return false
