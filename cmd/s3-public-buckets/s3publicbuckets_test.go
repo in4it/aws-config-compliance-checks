@@ -1,15 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go/service/configservice"
 )
 
 func TestDataCreate(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_create.json")
+	data, _ := ioutil.ReadFile("test/create.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -22,7 +25,7 @@ func TestDataCreate(t *testing.T) {
 }
 
 func TestDataUpdate(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_update.json")
+	data, _ := ioutil.ReadFile("test/update.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -48,7 +51,7 @@ func TestDataDelete(t *testing.T) {
 }
 
 func TestIfApplicableOnCreate(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_create.json")
+	data, _ := ioutil.ReadFile("test/create.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -71,7 +74,7 @@ func TestIfApplicableOnCreate(t *testing.T) {
 }
 
 func TestIfApplicableOnUpdate(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_update.json")
+	data, _ := ioutil.ReadFile("test/update.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -94,7 +97,7 @@ func TestIfApplicableOnUpdate(t *testing.T) {
 }
 
 func TestIfNotApplicable(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_delete.json")
+	data, _ := ioutil.ReadFile("test/delete.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -116,8 +119,8 @@ func TestIfNotApplicable(t *testing.T) {
 
 }
 
-func TestEvaluateComplianceNotComplaiant(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_create.json")
+func TestEvaluateComplianceNotcompliant(t *testing.T) {
+	data, _ := ioutil.ReadFile("test/create.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -131,14 +134,14 @@ func TestEvaluateComplianceNotComplaiant(t *testing.T) {
 	fmt.Println(resp)
 
 	if resp == "COMPLIANT" {
-		t.Errorf("error: Resource COMPLAIANT, should be NOT_COMPLAIANT")
+		t.Errorf("error: Resource compliant, should be NOT_compliant")
 		return
 	}
 
 }
 
 func TestEvaluateComplianceNotApplicable(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_delete.json")
+	data, _ := ioutil.ReadFile("test/delete.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -152,14 +155,14 @@ func TestEvaluateComplianceNotApplicable(t *testing.T) {
 	fmt.Println(resp)
 
 	if resp == "COMPLIANT" {
-		t.Errorf("error: Resource COMPLAIANT, should be NOT_COMPLAIANT")
+		t.Errorf("error: Resource compliant, should be NOT_compliant")
 		return
 	}
 
 }
 
-func TestEvaluateComplianceComplaiant(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_update.json")
+func TestEvaluateCompliancecompliant(t *testing.T) {
+	data, _ := ioutil.ReadFile("test/update.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -172,7 +175,7 @@ func TestEvaluateComplianceComplaiant(t *testing.T) {
 	resp := evaluateCompliance(ci)
 
 	if resp == "COMPLIANT" {
-		t.Errorf("error: Resource COMPLAIANT, should be NOT_COMPLAIANT")
+		t.Errorf("error: Resource compliant, should be NOT_compliant")
 		return
 	}
 
@@ -208,4 +211,55 @@ func TestParams(t *testing.T) {
 		return
 	}
 
+}
+
+func TestHandleRequestWithConfigServicecompliant(t *testing.T) {
+	ctx := context.Background()
+	data, _ := ioutil.ReadFile("test/compliant.json")
+	configEvent := events.ConfigEvent{
+		EventLeftScope: false,
+		ResultToken:    "myResultToken",
+		RuleParameters: "{\"excludeBuckets\":\"testBucket1,testBucket2\"}",
+		InvokingEvent:  string(data),
+	}
+
+	m := &MockAWSConfigService{}
+	err := handleRequestWithConfigService(ctx, configEvent, m)
+	if err != nil {
+		t.Error("Error:", err)
+		return
+	}
+}
+
+func TestHandleRequestWithConfigServiceNoncompliant(t *testing.T) {
+	ctx := context.Background()
+	data, _ := ioutil.ReadFile("test/create.json")
+	configEvent := events.ConfigEvent{
+		EventLeftScope: false,
+		ResultToken:    "myResultToken",
+		RuleParameters: "{\"excludeBuckets\":\"testBucket1,testBucket2\"}",
+		InvokingEvent:  string(data),
+	}
+
+	m := &MockAWSConfigService{}
+	err := handleRequestWithConfigService(ctx, configEvent, m)
+	if err != nil {
+		t.Error("Error:", err)
+		return
+	}
+}
+
+type MockAWSConfigService struct {
+}
+
+func (m *MockAWSConfigService) PutEvaluations(input *configservice.PutEvaluationsInput) (*configservice.PutEvaluationsOutput, error) {
+	if strings.HasSuffix(*input.Evaluations[0].ComplianceResourceId, "-noncompliant") && *input.Evaluations[0].ComplianceType == "NON_COMPLIANT" {
+		return &configservice.PutEvaluationsOutput{}, nil
+	}
+
+	if strings.HasSuffix(*input.Evaluations[0].ComplianceResourceId, "-compliant") && *input.Evaluations[0].ComplianceType == "COMPLIANT" {
+		return &configservice.PutEvaluationsOutput{}, nil
+	}
+
+	return &configservice.PutEvaluationsOutput{}, fmt.Errorf("Resource should be in a different state have: %v want: %v", *input.Evaluations[0].ComplianceResourceId, *input.Evaluations[0].ComplianceType)
 }

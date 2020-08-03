@@ -13,11 +13,21 @@ import (
 	"github.com/aws/aws-sdk-go/service/configservice"
 )
 
+type AWSConfigService interface {
+	PutEvaluations(*configservice.PutEvaluationsInput) (*configservice.PutEvaluationsOutput, error)
+}
+
 func main() {
 	lambda.Start(handleRequest)
 }
 
 func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
+	cSession := session.Must(session.NewSession())
+	svc := configservice.New(cSession)
+	handleRequestWithConfigService(ctx, configEvent, svc)
+}
+
+func handleRequestWithConfigService(ctx context.Context, configEvent events.ConfigEvent, svc AWSConfigService) error {
 	var status string
 	var invokingEvent InvokingEvent
 	var configurationItem ConfigurationItem
@@ -45,9 +55,6 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 		status = "NOT_APPLICABLE"
 	}
 
-	cSession := session.Must(session.NewSession())
-	svc := configservice.New(cSession)
-
 	var evaluations []*configservice.Evaluation
 
 	evaluation := &configservice.Evaluation{
@@ -68,8 +75,10 @@ func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
 
 	if err != nil {
 		fmt.Println("Error:", err)
-		return
+		return err
 	}
+
+	return nil
 }
 
 func evaluateCompliance(c ConfigurationItem) string {
