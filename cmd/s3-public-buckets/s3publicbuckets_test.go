@@ -12,7 +12,11 @@ import (
 )
 
 func TestDataCreate(t *testing.T) {
+<<<<<<< HEAD
 	data, _ := ioutil.ReadFile("test/create.json")
+=======
+	data, _ := ioutil.ReadFile("events/create.json")
+>>>>>>> 4c0d326... add sg public check
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -25,7 +29,11 @@ func TestDataCreate(t *testing.T) {
 }
 
 func TestDataUpdate(t *testing.T) {
+<<<<<<< HEAD
 	data, _ := ioutil.ReadFile("test/update.json")
+=======
+	data, _ := ioutil.ReadFile("events/update.json")
+>>>>>>> 4c0d326... add sg public check
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -38,7 +46,11 @@ func TestDataUpdate(t *testing.T) {
 }
 
 func TestDataDelete(t *testing.T) {
+<<<<<<< HEAD
 	data, _ := ioutil.ReadFile("test/delete.json")
+=======
+	data, _ := ioutil.ReadFile("events/delete.json")
+>>>>>>> 4c0d326... add sg public check
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -51,7 +63,11 @@ func TestDataDelete(t *testing.T) {
 }
 
 func TestIfApplicableOnCreate(t *testing.T) {
+<<<<<<< HEAD
 	data, _ := ioutil.ReadFile("test/create.json")
+=======
+	data, _ := ioutil.ReadFile("events/create.json")
+>>>>>>> 4c0d326... add sg public check
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -74,7 +90,11 @@ func TestIfApplicableOnCreate(t *testing.T) {
 }
 
 func TestIfApplicableOnUpdate(t *testing.T) {
+<<<<<<< HEAD
 	data, _ := ioutil.ReadFile("test/update.json")
+=======
+	data, _ := ioutil.ReadFile("events/update.json")
+>>>>>>> 4c0d326... add sg public check
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -97,7 +117,11 @@ func TestIfApplicableOnUpdate(t *testing.T) {
 }
 
 func TestIfNotApplicable(t *testing.T) {
+<<<<<<< HEAD
 	data, _ := ioutil.ReadFile("test/delete.json")
+=======
+	data, _ := ioutil.ReadFile("events/delete.json")
+>>>>>>> 4c0d326... add sg public check
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -120,7 +144,11 @@ func TestIfNotApplicable(t *testing.T) {
 }
 
 func TestEvaluateComplianceNotcompliant(t *testing.T) {
+<<<<<<< HEAD
 	data, _ := ioutil.ReadFile("test/create.json")
+=======
+	data, _ := ioutil.ReadFile("events/create.json")
+>>>>>>> 4c0d326... add sg public check
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -141,7 +169,11 @@ func TestEvaluateComplianceNotcompliant(t *testing.T) {
 }
 
 func TestEvaluateComplianceNotApplicable(t *testing.T) {
+<<<<<<< HEAD
 	data, _ := ioutil.ReadFile("test/delete.json")
+=======
+	data, _ := ioutil.ReadFile("events/delete.json")
+>>>>>>> 4c0d326... add sg public check
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -162,7 +194,11 @@ func TestEvaluateComplianceNotApplicable(t *testing.T) {
 }
 
 func TestEvaluateCompliant(t *testing.T) {
+<<<<<<< HEAD
 	data, _ := ioutil.ReadFile("test/update.json")
+=======
+	data, _ := ioutil.ReadFile("events/update.json")
+>>>>>>> 4c0d326... add sg public check
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -175,7 +211,11 @@ func TestEvaluateCompliant(t *testing.T) {
 	resp := evaluateCompliance(ci)
 
 	if resp == "COMPLIANT" {
+<<<<<<< HEAD
 		t.Errorf("error: Resource compliant, should be NOT_compliant")
+=======
+		t.Errorf("error: Resource COMPLIANT, should be NON_COMPLIANT")
+>>>>>>> 4c0d326... add sg public check
 		return
 	}
 
@@ -213,9 +253,15 @@ func TestParams(t *testing.T) {
 
 }
 
+<<<<<<< HEAD
 func TestHandleRequestWithConfigServicecompliant(t *testing.T) {
 	ctx := context.Background()
 	data, _ := ioutil.ReadFile("test/compliant.json")
+=======
+func TestHandleRequestWithConfigServiceCompliant(t *testing.T) {
+	ctx := context.Background()
+	data, _ := ioutil.ReadFile("events/compliant.json")
+>>>>>>> 4c0d326... add sg public check
 	configEvent := events.ConfigEvent{
 		EventLeftScope: false,
 		ResultToken:    "myResultToken",
@@ -233,7 +279,11 @@ func TestHandleRequestWithConfigServicecompliant(t *testing.T) {
 
 func TestHandleRequestWithConfigServiceNoncompliant(t *testing.T) {
 	ctx := context.Background()
+<<<<<<< HEAD
 	data, _ := ioutil.ReadFile("test/create.json")
+=======
+	data, _ := ioutil.ReadFile("events/create.json")
+>>>>>>> 4c0d326... add sg public check
 	configEvent := events.ConfigEvent{
 		EventLeftScope: false,
 		ResultToken:    "myResultToken",

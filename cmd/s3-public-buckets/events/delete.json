@@ -35,7 +35,7 @@
                     "name": "lr-testbucket-11111111111",
                     "owner": {
                         "displayName": null,
-                        "id": "c9f828b919b0428bec9e28c0e2cc4e18c41b9b12e6e2d4551840e545a5a19d48"
+                        "id": "abcdefg12345678910"
                     },
                     "creationDate": "2020-07-27T13:55:33.000Z"
                 },
@@ -43,7 +43,7 @@
                 "changeType": "DELETE"
             },
             "SupplementaryConfiguration.AccessControlList": {
-                "previousValue": "{\"grantSet\":null,\"grantList\":[{\"grantee\":{\"id\":\"c9f828b919b0428bec9e28c0e2cc4e18c41b9b12e6e2d4551840e545a5a19d48\",\"displayName\":null},\"permission\":\"FullControl\"}],\"owner\":{\"displayName\":null,\"id\":\"c9f828b919b0428bec9e28c0e2cc4e18c41b9b12e6e2d4551840e545a5a19d48\"},\"isRequesterCharged\":false}",
+                "previousValue": "{\"grantSet\":null,\"grantList\":[{\"grantee\":{\"id\":\"abcdefg12345678910\",\"displayName\":null},\"permission\":\"FullControl\"}],\"owner\":{\"displayName\":null,\"id\":\"abcdefg12345678910\"},\"isRequesterCharged\":false}",
                 "updatedValue": null,
                 "changeType": "DELETE"
             },
@@ -81,8 +81,8 @@
         "tags": {},
         "configurationItemVersion": "1.3",
         "configurationItemCaptureTime": "2020-07-28T06:59:49.360Z",
-        "configurationStateId": 1595919589360,
-        "awsAccountId": "326534185162",
+        "configurationStateId": 1234567890123,
+        "awsAccountId": "123456789000",
         "configurationItemStatus": "ResourceDeleted",
         "resourceType": "AWS::S3::Bucket",
         "resourceId": "lr-testbucket-11111111111",
