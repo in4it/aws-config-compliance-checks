@@ -28,7 +28,7 @@
         "relatedEvents": [],
         "relationships": [],
         "configuration": {
-            "name": "testbucket-complaiant",
+            "name": "testbucket-compliant",
             "owner": {
                 "displayName": null,
                 "id": "c9f828b919b0428bec9e28c0e2cc4e18c41b9b12e6e2d4551840e545a5a19d48"
@@ -69,9 +69,9 @@
         "awsAccountId": "326534185162",
         "configurationItemStatus": "OK",
         "resourceType": "AWS::S3::Bucket",
-        "resourceId": "testbucket-complaiant",
-        "resourceName": "testbucket-complaiant",
-        "ARN": "arn:aws:s3:::testbucket-complaiant",
+        "resourceId": "testbucket-compliant",
+        "resourceName": "testbucket-compliant",
+        "ARN": "arn:aws:s3:::testbucket-compliant",
         "awsRegion": "eu-central-1",
         "availabilityZone": "Regional",
         "configurationStateMd5Hash": "",

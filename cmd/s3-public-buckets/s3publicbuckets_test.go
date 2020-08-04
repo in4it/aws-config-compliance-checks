@@ -38,7 +38,7 @@ func TestDataUpdate(t *testing.T) {
 }
 
 func TestDataDelete(t *testing.T) {
-	data, _ := ioutil.ReadFile("test/request_delete.json")
+	data, _ := ioutil.ReadFile("test/delete.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -161,7 +161,7 @@ func TestEvaluateComplianceNotApplicable(t *testing.T) {
 
 }
 
-func TestEvaluateCompliancecompliant(t *testing.T) {
+func TestEvaluateCompliant(t *testing.T) {
 	data, _ := ioutil.ReadFile("test/update.json")
 	m, err := getInvokingEvent(data)
 

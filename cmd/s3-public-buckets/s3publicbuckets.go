@@ -21,10 +21,14 @@ func main() {
 	lambda.Start(handleRequest)
 }
 
-func handleRequest(ctx context.Context, configEvent events.ConfigEvent) {
+func handleRequest(ctx context.Context, configEvent events.ConfigEvent) error {
 	cSession := session.Must(session.NewSession())
 	svc := configservice.New(cSession)
-	handleRequestWithConfigService(ctx, configEvent, svc)
+	err := handleRequestWithConfigService(ctx, configEvent, svc)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func handleRequestWithConfigService(ctx context.Context, configEvent events.ConfigEvent, svc AWSConfigService) error {
