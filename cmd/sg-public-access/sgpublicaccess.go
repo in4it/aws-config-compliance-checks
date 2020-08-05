@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -50,17 +51,10 @@ func handleRequestWithConfigService(ctx context.Context, configEvent events.Conf
 
 	configurationItem = invokingEvent.ConfigurationItem
 
-	if params := getParams(configEvent, "excludeSecurityGroups"); params != nil {
-		for _, v := range params {
-			if v == configurationItem.ResourceName {
-				fmt.Println("Skiping over Compliance check for resource", v, "Params: excludeSecurityGroups")
-				status = "NOT_APPLICABLE"
-			}
-		}
-	}
+	list := createAllowList(getParams(configEvent, "excludeSecurityGroups"))
 
 	if isApplicable(configurationItem, configEvent) && status == "" {
-		status = evaluateCompliance(configurationItem)
+		status = evaluateCompliance(configurationItem, list)
 	} else {
 		status = "NOT_APPLICABLE"
 	}
@@ -91,17 +85,28 @@ func handleRequestWithConfigService(ctx context.Context, configEvent events.Conf
 	return nil
 }
 
-func evaluateCompliance(c ConfigurationItem) string {
+func evaluateCompliance(c ConfigurationItem, list map[string][]string) string {
 	if c.ResourceType != "AWS::EC2::SecurityGroup" {
 		return "NOT_APPLICABLE"
 	}
 
-	for _, v := range c.Configuration.IPPermissions {
-		if f := findInSlice(v.IPRanges, "0.0.0.0/0"); f == true {
-			fmt.Println("SG contains an open rule - 0.0.0.0/0")
-			return "NON_COMPLIANT"
+	for _, s := range c.Configuration.IPPermissions {
+		if f := findInSlice(s.IPRanges, "0.0.0.0/0"); f == true {
+			if val, ok := list[c.ResourceID]; ok {
+				if len(list[c.ResourceID]) == 0 {
+					fmt.Println("Skipping over Compliance check for resource", c.ResourceID, "Params: excludeSecurityGroups")
+					return "NOT_APPLICABLE"
+				}
+				if !findInSlice(val, strconv.Itoa(s.ToPort)) && !findInSlice(val, strconv.Itoa(s.FromPort)) {
+					return "NON_COMPLIANT"
+				}
+
+			} else {
+				return "NON_COMPLIANT"
+			}
 		}
 	}
+
 	return "COMPLIANT"
 
 }
@@ -141,6 +146,24 @@ func getParams(p events.ConfigEvent, param string) []string {
 		return nil
 	}
 	return nil
+}
+
+func createAllowList(params []string) map[string][]string {
+	list := make(map[string][]string)
+	if params != nil {
+		for _, v := range params {
+			param := strings.Split(v, ":")
+			if len(param) > 1 {
+				ports := strings.Split(param[1], "+")
+				for _, port := range ports {
+					list[param[0]] = append(list[param[0]], port)
+				}
+			} else {
+				list[param[0]] = []string{}
+			}
+		}
+	}
+	return list
 }
 
 func findInSlice(slice []string, val string) bool {

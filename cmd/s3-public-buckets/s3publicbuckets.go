@@ -47,7 +47,7 @@ func handleRequestWithConfigService(ctx context.Context, configEvent events.Conf
 	if params := getParams(configEvent, "excludeBuckets"); params != nil {
 		for _, v := range params {
 			if v == configurationItem.ResourceName {
-				fmt.Println("Skiping over Compliance check for resource", v, "Params: excludeBuckets")
+				fmt.Println("Skipping over Compliance check for resource", v, "Params: excludeBuckets")
 				status = "NOT_APPLICABLE"
 			}
 		}

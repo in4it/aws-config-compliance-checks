@@ -1,0 +1,100 @@
+{
+    "configurationItemDiff": null,
+    "configurationItem": {
+        "relatedEvents": [],
+        "relationships": [
+            {
+                "resourceId": "eni-12345678",
+                "resourceName": null,
+                "resourceType": "AWS::EC2::NetworkInterface",
+                "name": "Is associated with NetworkInterface"
+            },
+            {
+                "resourceId": "vpc-fffffffffffffffff",
+                "resourceName": null,
+                "resourceType": "AWS::EC2::VPC",
+                "name": "Is contained in Vpc"
+            }
+        ],
+        "configuration": {
+            "description": "test-sg-compliant",
+            "groupName": "test-sg-compliant",
+            "ipPermissions": [
+                {
+                    "fromPort": 8080,
+                    "ipProtocol": "tcp",
+                    "ipv6Ranges": [],
+                    "prefixListIds": [],
+                    "toPort": 8080,
+                    "userIdGroupPairs": [
+                        {
+                            "groupId": "sg-1123ffff332212dddd",
+                            "userId": "1112334185162"
+                        }
+                    ],
+                    "ipv4Ranges": [],
+                    "ipRanges": []
+                },
+                {
+                    "fromPort": 50051,
+                    "ipProtocol": "tcp",
+                    "ipv6Ranges": [],
+                    "prefixListIds": [],
+                    "toPort": 50051,
+                    "userIdGroupPairs": [
+                        {
+                            "groupId": "sg-1123ffff332212dddd",
+                            "userId": "1112334185162"
+                        },
+                        {
+                            "groupId": "sg-1123ffff332212dddd",
+                            "userId": "1112334185162"
+                        }
+                    ],
+                    "ipv4Ranges": [],
+                    "ipRanges": [
+                        "0.0.0.0/0"
+                    ]
+                }
+            ],
+            "ownerId": "1112334185162",
+            "groupId": "sg-1123ffff332212dddd",
+            "ipPermissionsEgress": [
+                {
+                    "ipProtocol": "-1",
+                    "ipv6Ranges": [],
+                    "prefixListIds": [],
+                    "userIdGroupPairs": [],
+                    "ipv4Ranges": [
+                        {
+                            "cidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "ipRanges": [
+                        "0.0.0.0/0"
+                    ]
+                }
+            ],
+            "tags": [],
+            "vpcId": "vpc-fffffffffffffffff"
+        },
+        "supplementaryConfiguration": {},
+        "tags": {},
+        "configurationItemVersion": "1.3",
+        "configurationItemCaptureTime": "2020-07-22T13:50:07.841Z",
+        "configurationStateId": 11111111111111111,
+        "awsAccountId": "1112334185162",
+        "configurationItemStatus": "OK",
+        "resourceType": "AWS::EC2::SecurityGroup",
+        "resourceId": "sg-1123ffff332212dddd-compliant",
+        "resourceName": "test-sg-compliant",
+        "ARN": "arn:aws:ec2:eu-central-1:1112334185162:security-group/sg-1123ffff332212dddd",
+        "awsRegion": "eu-central-1",
+        "availabilityZone": "Not Applicable",
+        "configurationStateMd5Hash": "",
+        "resourceCreationTime": null
+    },
+    "notificationCreationTime": "2020-08-04T09:08:20.844Z",
+    "messageType": "ConfigurationItemChangeNotification",
+    "recordVersion": "1.3"
+}
