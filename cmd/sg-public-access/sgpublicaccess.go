@@ -24,11 +24,6 @@ func main() {
 
 func handleRequest(ctx context.Context, configEvent events.ConfigEvent) error {
 
-	fmt.Printf("AWS Config rule: %s\n", configEvent.ConfigRuleName)
-	fmt.Printf("Invoking event JSON: %s\n", configEvent.InvokingEvent)
-	fmt.Printf("Event version: %s\n", configEvent.Version)
-	fmt.Printf("Params: %s\n", configEvent.RuleParameters)
-
 	cSession := session.Must(session.NewSession())
 	svc := configservice.New(cSession)
 	err := handleRequestWithConfigService(ctx, configEvent, svc)

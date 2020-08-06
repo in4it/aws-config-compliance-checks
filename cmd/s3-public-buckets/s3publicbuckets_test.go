@@ -4,11 +4,10 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"strings"
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-sdk-go/service/configservice"
+	"github.com/in4it/aws-config-compliance-checks/pkg/mocks"
 )
 
 func TestDataCreate(t *testing.T) {
@@ -224,7 +223,7 @@ func TestHandleRequestWithConfigServiceCompliant(t *testing.T) {
 		InvokingEvent:  string(data),
 	}
 
-	m := &MockAWSConfigService{}
+	m := &mocks.MockAWSConfigService{}
 	err := handleRequestWithConfigService(ctx, configEvent, m)
 	if err != nil {
 		t.Error("Error:", err)
@@ -242,25 +241,10 @@ func TestHandleRequestWithConfigServiceNoncompliant(t *testing.T) {
 		InvokingEvent:  string(data),
 	}
 
-	m := &MockAWSConfigService{}
+	m := &mocks.MockAWSConfigService{}
 	err := handleRequestWithConfigService(ctx, configEvent, m)
 	if err != nil {
 		t.Error("Error:", err)
 		return
 	}
-}
-
-type MockAWSConfigService struct {
-}
-
-func (m *MockAWSConfigService) PutEvaluations(input *configservice.PutEvaluationsInput) (*configservice.PutEvaluationsOutput, error) {
-	if strings.HasSuffix(*input.Evaluations[0].ComplianceResourceId, "-noncompliant") && *input.Evaluations[0].ComplianceType == "NON_COMPLIANT" {
-		return &configservice.PutEvaluationsOutput{}, nil
-	}
-
-	if strings.HasSuffix(*input.Evaluations[0].ComplianceResourceId, "-compliant") && *input.Evaluations[0].ComplianceType == "COMPLIANT" {
-		return &configservice.PutEvaluationsOutput{}, nil
-	}
-
-	return &configservice.PutEvaluationsOutput{}, fmt.Errorf("Resource should be in a different state have: %v want: %v", *input.Evaluations[0].ComplianceResourceId, *input.Evaluations[0].ComplianceType)
 }
