@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -22,6 +23,7 @@ func main() {
 }
 
 func handleRequest(ctx context.Context, configEvent events.ConfigEvent) error {
+
 	cSession := session.Must(session.NewSession())
 	svc := configservice.New(cSession)
 	err := handleRequestWithConfigService(ctx, configEvent, svc)
@@ -44,17 +46,10 @@ func handleRequestWithConfigService(ctx context.Context, configEvent events.Conf
 
 	configurationItem = invokingEvent.ConfigurationItem
 
-	if params := getParams(configEvent, "excludeBuckets"); params != nil {
-		for _, v := range params {
-			if v == configurationItem.ResourceName {
-				fmt.Println("Skipping over Compliance check for resource", v, "Params: excludeBuckets")
-				status = "NOT_APPLICABLE"
-			}
-		}
-	}
+	list := createAllowList(getParams(configEvent, "excludeSecurityGroups"))
 
 	if isApplicable(configurationItem, configEvent) && status == "" {
-		status = evaluateCompliance(configurationItem)
+		status = evaluateCompliance(configurationItem, list)
 	} else {
 		status = "NOT_APPLICABLE"
 	}
@@ -85,20 +80,30 @@ func handleRequestWithConfigService(ctx context.Context, configEvent events.Conf
 	return nil
 }
 
-func evaluateCompliance(c ConfigurationItem) string {
-	if c.ResourceType != "AWS::S3::Bucket" {
+func evaluateCompliance(c ConfigurationItem, list map[string][]string) string {
+	if c.ResourceType != "AWS::EC2::SecurityGroup" {
 		return "NOT_APPLICABLE"
 	}
 
-	blockPublicAcls := c.SupplementaryConfiguration.PublicAccessBlockConfiguration.BlockPublicAcls
-	ignorePublicAcls := c.SupplementaryConfiguration.PublicAccessBlockConfiguration.IgnorePublicAcls
-	blockPublicPolicy := c.SupplementaryConfiguration.PublicAccessBlockConfiguration.BlockPublicPolicy
-	restrictPublicBuckets := c.SupplementaryConfiguration.PublicAccessBlockConfiguration.RestrictPublicBuckets
+	for _, s := range c.Configuration.IPPermissions {
+		if f := findInSlice(s.IPRanges, "0.0.0.0/0"); f == true {
+			if val, ok := list[c.ResourceID]; ok {
+				if len(list[c.ResourceID]) == 0 {
+					fmt.Println("Skipping over Compliance check for resource", c.ResourceID, "Params: excludeSecurityGroups")
+					return "NOT_APPLICABLE"
+				}
+				if !findInSlice(val, strconv.Itoa(s.ToPort)) && !findInSlice(val, strconv.Itoa(s.FromPort)) {
+					return "NON_COMPLIANT"
+				}
 
-	if blockPublicAcls == true && ignorePublicAcls == true && blockPublicPolicy == true && restrictPublicBuckets == true {
-		return "COMPLIANT"
+			} else {
+				return "NON_COMPLIANT"
+			}
+		}
 	}
-	return "NON_COMPLIANT"
+
+	return "COMPLIANT"
+
 }
 
 func getInvokingEvent(event []byte) (InvokingEvent, error) {
@@ -136,4 +141,31 @@ func getParams(p events.ConfigEvent, param string) []string {
 		return nil
 	}
 	return nil
+}
+
+func createAllowList(params []string) map[string][]string {
+	list := make(map[string][]string)
+	if params != nil {
+		for _, v := range params {
+			param := strings.Split(v, ":")
+			if len(param) > 1 {
+				ports := strings.Split(param[1], "+")
+				for _, port := range ports {
+					list[param[0]] = append(list[param[0]], port)
+				}
+			} else {
+				list[param[0]] = []string{}
+			}
+		}
+	}
+	return list
+}
+
+func findInSlice(slice []string, val string) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
 }
