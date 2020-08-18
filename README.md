@@ -8,7 +8,6 @@ Params:
     - key: excludeBuckets
     - value: Comma separated list of buckets, e.g "bucket1, bucket2"
 
-
 ### sg-public-access
 Checks AWS security groups for rules that allow access from "0.0.0.0/0". A parameter can be added to exclude security groups in the format sg-12345:80+443, sg-45678. The first excludes only specific ports in a security group, the latter excludes the whole security group from compliance checks.
 
@@ -17,3 +16,32 @@ Params:
     - key: excludeSecurityGroups
     - value: Comma separated list of Security Group Ids, optionally followed by port numbers e.g:  "sg-12345:80+443, sg-67890, sg-112233:22"
 
+### sg-public-access-egress
+Checks AWS security groups for rules that allow egress access to "0.0.0.0/0". A parameter can be added to exclude security groups in the format sg-12345:80+443, sg-45678. The first excludes only specific ports in a security group, the latter excludes the whole security group from compliance checks.
+
+Params:
+- excludeSecurityGroups: Skip compliance check for listed Security Groups
+    - key: excludeSecurityGroups
+    - value: Comma separated list of Security Group Ids, optionally followed by port numbers e.g:  "sg-12345:80+443, sg-67890, sg-112233:22"
+
+
+
+### Deployment
+
+Build config rules:
+```make all```
+Upload config rules zipped binaries to your s3 bucket under the `/lambdas` key.
+```aws s3 cp s3-public-access.zip s3://my-bucket/lambdas/```
+
+Include terraform module and apply.
+Example setup:
+```
+module "in4it-config-rules" {
+    source = "git@github.com:in4it/aws-config-compliance-checks.git//terraform"
+    aws_region = "eu-central-1"
+    aws_account_id = "123456789"
+    s3_bucket = "my-bucket"
+    exclude_buckets = "bucket1"
+    exclude_security_groups_ingress = "sg-lb-1:80+443,sg-lb-2"
+}
+```
