@@ -38,8 +38,6 @@ Example setup:
 ```
 module "in4it-config-rules" {
     source = "git@github.com:in4it/aws-config-compliance-checks.git//terraform"
-    aws_region = "eu-central-1"
-    aws_account_id = "123456789"
     s3_bucket = "my-bucket"
     exclude_buckets = "bucket1"
     exclude_security_groups_ingress = "sg-lb-1:80+443,sg-lb-2"

@@ -1,7 +1,3 @@
-variable "aws_region" {}
-
-variable "aws_account_id" {}
-
 variable "resource_name_prefix" {
   description = "All the resources will be prefixed with this varible"
   default     = "in4it"
