@@ -1,4 +1,4 @@
-resource "aws_config_config_rule" "in4it-s3-public-buckets" {
+resource "aws_config_config_rule" "s3-public-buckets" {
   count = var.rule_s3_public_buckets_enabled ? 1 : 0
   description = "Checks if \"Block all public access\" is set for s3 buckets"
   input_parameters = jsonencode(
@@ -16,7 +16,7 @@ resource "aws_config_config_rule" "in4it-s3-public-buckets" {
 
   source {
     owner             = "CUSTOM_LAMBDA"
-    source_identifier = "${aws_lambda_function.in4it-s3-public-buckets.arn}"
+    source_identifier = aws_lambda_function.s3-public-buckets.arn
 
     source_detail {
       event_source = "aws.config"
@@ -29,7 +29,7 @@ resource "aws_config_config_rule" "in4it-s3-public-buckets" {
   }
 }
 
-resource "aws_config_config_rule" "in4it-sg-public-access" {
+resource "aws_config_config_rule" "sg-public-access" {
   count = var.rule_sg_public_access_enabled ? 1 : 0
   description = "Checks AWS security groups for rules that allow access from \"0.0.0.0/0\""
   name        = "${var.resource_name_prefix}-sg-public-access"
@@ -48,7 +48,7 @@ resource "aws_config_config_rule" "in4it-sg-public-access" {
 
   source {
     owner             = "CUSTOM_LAMBDA"
-    source_identifier = "${aws_lambda_function.in4it-sg-public-access.arn}"
+    source_identifier = aws_lambda_function.sg-public-access.arn
 
     source_detail {
       event_source = "aws.config"
@@ -61,7 +61,7 @@ resource "aws_config_config_rule" "in4it-sg-public-access" {
   }
 }
 
-resource "aws_config_config_rule" "in4it-sg-public-access-egress" {
+resource "aws_config_config_rule" "sg-public-access-egress" {
   count = var.rule_sg_public_access_egress_enabled ? 1 : 0
   description = "Checks AWS security groups for rules that allow egress access to \"0.0.0.0/0\""
   name        = "${var.resource_name_prefix}-sg-public-access-egress"
@@ -80,7 +80,7 @@ resource "aws_config_config_rule" "in4it-sg-public-access-egress" {
 
   source {
     owner             = "CUSTOM_LAMBDA"
-    source_identifier = "${aws_lambda_function.in4it-sg-public-access-egress.arn}"
+    source_identifier = aws_lambda_function.sg-public-access-egress.arn
 
     source_detail {
       event_source = "aws.config"
