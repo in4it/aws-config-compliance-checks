@@ -12,6 +12,11 @@ variable "rule_s3_public_buckets_enabled" {
   default = true
 }
 
+variable "rule_s3_lifecycle_enabled" {
+  description = "Enable rule s3-lifecycle"
+  default = true
+}
+
 variable "rule_sg_public_access_enabled" {
   description = "Enable rule sg-public-access"
   default = true

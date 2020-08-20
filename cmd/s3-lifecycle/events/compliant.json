@@ -1,0 +1,84 @@
+{
+    "configurationItemDiff": {
+        "changedProperties": {},
+        "changeType": "CREATE"
+    },
+    "configurationItem": {
+        "relatedEvents": [],
+        "relationships": [],
+        "configuration": {
+            "name": "test-bucket-123456-compliant",
+            "owner": {
+                "displayName": null,
+                "id": "29129djdjsisi"
+            },
+            "creationDate": "2020-08-20T14:12:39.000Z"
+        },
+        "supplementaryConfiguration": {
+            "AccessControlList": "{\"grantSet\":null,\"grantList\":[{\"grantee\":{\"id\":\"29129djdjsisi\",\"displayName\":null},\"permission\":\"FullControl\"}],\"owner\":{\"displayName\":null,\"id\":\"29129djdjsisi\"},\"isRequesterCharged\":false}",
+            "BucketAccelerateConfiguration": {
+                "status": null
+            },
+            "BucketLifecycleConfiguration": {
+                "rules": [
+                    {
+                        "id": "test",
+                        "prefix": null,
+                        "status": "Enabled",
+                        "filter": {
+                            "predicate": {
+                                "type": "LifecyclePrefixPredicate",
+                                "prefix": ""
+                            }
+                        },
+                        "expirationInDays": 10,
+                        "expiredObjectDeleteMarker": false,
+                        "noncurrentVersionExpirationInDays": -1,
+                        "expirationDate": null,
+                        "transitions": null,
+                        "noncurrentVersionTransitions": null,
+                        "abortIncompleteMultipartUpload": null
+                    }
+                ]
+            },
+            "BucketLoggingConfiguration": {
+                "destinationBucketName": null,
+                "logFilePrefix": null
+            },
+            "BucketNotificationConfiguration": {
+                "configurations": {}
+            },
+            "BucketPolicy": {
+                "policyText": null
+            },
+            "BucketVersioningConfiguration": {
+                "status": "Off",
+                "isMfaDeleteEnabled": null
+            },
+            "IsRequesterPaysEnabled": false,
+            "PublicAccessBlockConfiguration": {
+                "blockPublicAcls": true,
+                "ignorePublicAcls": true,
+                "blockPublicPolicy": true,
+                "restrictPublicBuckets": true
+            }
+        },
+        "tags": {},
+        "configurationItemVersion": "1.3",
+        "configurationItemCaptureTime": "2020-08-20T14:14:49.767Z",
+        "configurationStateId": 10101010101010,
+        "awsAccountId": "123456789",
+        "configurationItemStatus": "ResourceDiscovered",
+        "resourceType": "AWS::S3::Bucket",
+        "resourceId": "test-bucket-123456-compliant",
+        "resourceName": "test-bucket-123456-compliant",
+        "ARN": "arn:aws:s3:::test-bucket-123456-compliant",
+        "awsRegion": "eu-central-1",
+        "availabilityZone": "Regional",
+        "configurationStateMd5Hash": "",
+        "resourceCreationTime": "2020-08-20T14:12:39.000Z"
+    },
+    "notificationCreationTime": "2020-08-20T14:14:49.818Z",
+    "messageType": "ConfigurationItemChangeNotification",
+    "recordVersion": "1.3"
+}

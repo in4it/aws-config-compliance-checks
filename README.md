@@ -8,6 +8,14 @@ Params:
     - key: excludeBuckets
     - value: Comma separated list of buckets, e.g "bucket1, bucket2"
 
+### s3-lifecycle
+Checks if "S3 Lifecycle configuration" is set for s3 buckets
+
+Params:
+- excludeBuckets: Skip compliance check for listed buckets
+    - key: excludeBuckets
+    - value: Comma separated list of buckets, e.g "bucket1, bucket2"
+
 ### sg-public-access
 Checks AWS security groups for rules that allow access from "0.0.0.0/0". A parameter can be added to exclude security groups in the format sg-12345:80+443, sg-45678. The first excludes only specific ports in a security group, the latter excludes the whole security group from compliance checks.
 

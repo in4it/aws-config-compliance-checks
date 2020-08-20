@@ -11,6 +11,11 @@ s3-public-buckets:
 	zip s3-public-buckets.zip s3-public-buckets
 	rm -rf s3-public-buckets
 
+s3-lifecycle:
+	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o s3-lifecycle cmd/s3-lifecycle/*.go
+	zip s3-lifecycle.zip s3-lifecycle
+	rm -rf s3-lifecycle
+
 sg-public-access:
 	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o sg-public-access cmd/sg-public-access/*.go
 	zip sg-public-access.zip sg-public-access
