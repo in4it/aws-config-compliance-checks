@@ -21,8 +21,8 @@ resource "aws_iam_role" "sg-public-access-egress" {
 EOF
 }
 
-resource "aws_iam_role" "s3-lifecycle" {
-  name = "s3-lifecycle"
+resource "aws_iam_role" "config-s3-lifecycle" {
+  name = "config-s3-lifecycle"
 
   assume_role_policy = <<EOF
 {
@@ -159,8 +159,8 @@ resource "aws_iam_policy" "s3-public-buckets" {
 EOF
 }
 
-resource "aws_iam_policy" "s3-lifecycle" {
-  name        = "s3-lifecycle"
+resource "aws_iam_policy" "config-s3-lifecycle" {
+  name        = "config-s3-lifecycle"
   path        = "/"
   description = "IAM policy for logging and config from a lambda"
 
@@ -172,7 +172,7 @@ resource "aws_iam_policy" "s3-lifecycle" {
             "Effect": "Allow",
             "Action": "logs:CreateLogGroup",
             "Resource": [
-              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-s3-lifecycle"
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-config-s3-lifecycle"
             ]
         },
         {
@@ -182,7 +182,7 @@ resource "aws_iam_policy" "s3-lifecycle" {
                 "logs:PutLogEvents"
             ],
             "Resource": [
-              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-s3-lifecycle:log-stream:*"
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-config-s3-lifecycle:log-stream:*"
             ]
         },
         {
@@ -252,9 +252,9 @@ resource "aws_iam_role_policy_attachment" "s3-public-buckets" {
   policy_arn = aws_iam_policy.s3-public-buckets.arn
 }
 
-resource "aws_iam_role_policy_attachment" "s3-lifecycle" {
-  role       = aws_iam_role.s3-lifecycle.name
-  policy_arn = aws_iam_policy.s3-lifecycle.arn
+resource "aws_iam_role_policy_attachment" "config-s3-lifecycle" {
+  role       = aws_iam_role.config-s3-lifecycle.name
+  policy_arn = aws_iam_policy.config-s3-lifecycle.arn
 }
 
 resource "aws_lambda_function" "sg-public-access" {
@@ -283,7 +283,7 @@ resource "aws_lambda_function" "s3-lifecycle" {
   s3_bucket     = var.s3_bucket
   s3_key        = "lambdas/s3-lifecycle.zip"
   function_name = "${var.resource_name_prefix}-s3-lifecycle"
-  role          = aws_iam_role.s3-lifecycle.arn
+  role          = aws_iam_role.config-s3-lifecycle.arn
   handler       = "s3-lifecycle"
 
   runtime = "go1.x"
@@ -325,7 +325,7 @@ resource "aws_lambda_permission" "s3-public-buckets" {
   source_account = data.aws_caller_identity.current.account_id
 }
 
-resource "aws_lambda_permission" "s3-lifecycle" {
+resource "aws_lambda_permission" "config-s3-lifecycle" {
   statement_id   = "AllowConfigToInvoke"
   action         = "lambda:InvokeFunction"
   function_name  = aws_lambda_function.s3-lifecycle.function_name
