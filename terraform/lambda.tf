@@ -259,6 +259,7 @@ resource "aws_iam_role_policy_attachment" "config-s3-lifecycle" {
 
 resource "aws_lambda_function" "sg-public-access" {
   s3_bucket     = var.s3_bucket
+  kms_key_arn   = var.s3_bucket_kms_key_arn
   s3_key        = "lambdas/sg-public-access.zip"
   function_name = "${var.resource_name_prefix}-sg-public-access"
   role          = aws_iam_role.sg-public-access.arn
@@ -270,6 +271,7 @@ resource "aws_lambda_function" "sg-public-access" {
 
 resource "aws_lambda_function" "s3-public-buckets" {
   s3_bucket     = var.s3_bucket
+  kms_key_arn   = var.s3_bucket_kms_key_arn
   s3_key        = "lambdas/s3-public-buckets.zip"
   function_name = "${var.resource_name_prefix}-s3-public-buckets"
   role          = aws_iam_role.s3-public-buckets.arn
@@ -281,6 +283,7 @@ resource "aws_lambda_function" "s3-public-buckets" {
 
 resource "aws_lambda_function" "s3-lifecycle" {
   s3_bucket     = var.s3_bucket
+  kms_key_arn   = var.s3_bucket_kms_key_arn
   s3_key        = "lambdas/s3-lifecycle.zip"
   function_name = "${var.resource_name_prefix}-s3-lifecycle"
   role          = aws_iam_role.config-s3-lifecycle.arn
@@ -292,6 +295,7 @@ resource "aws_lambda_function" "s3-lifecycle" {
 
 resource "aws_lambda_function" "sg-public-access-egress" {
   s3_bucket     = var.s3_bucket
+  kms_key_arn   = var.s3_bucket_kms_key_arn
   s3_key        = "lambdas/sg-public-access-egress.zip"
   function_name = "${var.resource_name_prefix}-sg-public-access-egress"
   role          = aws_iam_role.sg-public-access-egress.arn

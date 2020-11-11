@@ -7,6 +7,11 @@ variable "s3_bucket" {
   description = "S3 bucket with lambda packages"
 }
 
+variable "s3_bucket_kms_key_arn" {
+  description = "S3 bucket key with lambda packages"
+  default = ""
+}
+
 variable "rule_s3_public_buckets_enabled" {
   description = "Enable rule s3-public-buckets"
   default = true
