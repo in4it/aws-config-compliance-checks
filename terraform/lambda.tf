@@ -61,6 +61,28 @@ resource "aws_iam_role" "s3-public-buckets" {
 EOF
 }
 
+
+resource "aws_iam_role" "s3-vpc-traffic-only" {
+  name = "s3-vpc-traffic-only"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+
 resource "aws_iam_role" "sg-public-access" {
   name = "sg-public-access"
 
@@ -197,6 +219,50 @@ resource "aws_iam_policy" "config-s3-lifecycle" {
 }
 EOF
 }
+
+
+resource "aws_iam_policy" "" {
+  name        = "s3-public-buckets"
+  path        = "/"
+  description = "IAM policy for logging and config from a lambda"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "logs:CreateLogGroup",
+            "Resource": [
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-s3-public-buckets"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-s3-public-buckets:log-stream:*"
+            ]
+        },
+        {
+            "Sid": "putEvaluations",
+            "Effect": "Allow",
+            "Action": [
+                "config:PutEvaluations"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+
+
+
+
 
 resource "aws_iam_policy" "sg-public-access" {
   name        = "sg-public-access"
