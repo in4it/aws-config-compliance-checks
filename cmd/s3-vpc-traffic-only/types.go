@@ -63,7 +63,7 @@ type BucketNotificationConfiguration struct {
 	Configurations Configurations `json:"configurations"`
 }
 type BucketPolicy struct {
-	PolicyText string `json:"policyText"`
+	PolicyText interface{} `json:"policyText"`
 }
 type BucketVersioningConfiguration struct {
 	Status             string      `json:"status"`
@@ -107,24 +107,3 @@ type ConfigurationItem struct {
 	ConfigurationStateMd5Hash    string                     `json:"configurationStateMd5Hash"`
 	ResourceCreationTime         time.Time                  `json:"resourceCreationTime"`
 }
-
-type PolicyDocument struct {
-	Version   string `json:"Version"`
-	Id		  string `json:"Id"`
-	Statement []interface{} `json:"Statement"`
-}
-
-//type StatementEntry struct {
-//	Effect     					 string                     `json:"Effect"`
-//	Action   					 string                     `json:"Action"`
-//	Resource                     string                     `json:"Resource"`
-//	Condition 					 ConditionEntry             `json:"Condition"`
-//}
-
-//type ConditionEntry struct {
-//	StringNotEquals				 StringNotEqualsEntry       `json:"StringNotEquals"`
-//}
-
-//type StringNotEqualsEntry struct {
-//	AwsSourceVpc				 string						`json:"aws.SourceVpc"`
-//}

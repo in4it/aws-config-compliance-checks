@@ -4,15 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"strings"
-	"strconv"
-
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/configservice"
+	"strings"
 )
 
 type AWSConfigService interface {
@@ -92,19 +89,11 @@ func evaluateCompliance(c ConfigurationItem) string {
 		return "NOT_APPLICABLE"
 	}
 
-	bp := c.SupplementaryConfiguration.BucketPolicy.PolicyText
+	pd := c.SupplementaryConfiguration.BucketPolicy.PolicyText
+	pds := fmt.Sprint(pd)
+	pdf := strings.ContainsAny(pds, "aws:sourceVpc")
 
-    var pd PolicyDocument
-	var val []byte = []byte(bp)
-
-    s, _ := strconv.Unquote(string(val))
-
-    if err := json.Unmarshal([]byte(s), &pd) ; err != nil {
-		log.Println("err: ", err)
-		return "NON_COMPLIANT"
-	}
-
-	if strings.ContainsAny(pd.Id, "policy") {
+	if pdf == true {
 		return "COMPLIANT"
 	}
 	return "NON_COMPLIANT"
