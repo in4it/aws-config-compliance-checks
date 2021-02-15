@@ -107,3 +107,41 @@ type ConfigurationItem struct {
 	ConfigurationStateMd5Hash    string                     `json:"configurationStateMd5Hash"`
 	ResourceCreationTime         time.Time                  `json:"resourceCreationTime"`
 }
+
+type PolicyDocument struct {
+	Version   string         `json:"Version"`
+	ID        string         `json:"Id"`
+	Statement StatementEntry `json:"Statement"`
+}
+
+type StatementEntry []struct {
+	Sid       string         `json:"Sid"`
+	Effect    string         `json:"Effect"`
+	Principal interface{}    `json:"Principal"`
+	Action    string         `json:"Action"`
+	Resource  interface{}    `json:"Resource"`
+	Condition ConditionEntry `json:"Condition,omitempty"`
+}
+type ConditionEntry struct {
+	StringEquals                StringEqualsEntry                `json:"StringEquals"`
+	ForAllValuesStringNotEquals ForAllValuesStringNotEqualsEntry `json:"ForAllValues:StringNotEquals"`
+	ForAllValuesArnNotEquals    ForAllValuesArnNotEqualsEntry    `json:"ForAllValues:ArnNotEquals"`
+	ArnNotLike                  ArnNotLikeEntry                  `json:"ArnNotLike"`
+}
+
+type ForAllValuesArnNotEqualsEntry struct {
+	AwsPrincipalArn interface{} `json:"aws:PrincipalArn"`
+}
+
+type StringEqualsEntry struct {
+	AwsSourceVpc []string `json:"aws:sourceVpc"`
+}
+
+type ForAllValuesStringNotEqualsEntry struct {
+	AwsSourceVpc []string `json:"aws:sourceVpc"`
+	AwsCalledVia string   `json:"aws:CalledVia"`
+}
+type ArnNotLikeEntry struct {
+	AwsUsername     string   `json:"aws:username"`
+	AwsPrincipalArn []string `json:"aws:PrincipalArn"`
+}

@@ -90,11 +90,18 @@ func evaluateCompliance(c ConfigurationItem) string {
 	}
 
 	pd := c.SupplementaryConfiguration.BucketPolicy.PolicyText
-	pds := fmt.Sprint(pd)
-	pdf := strings.ContainsAny(pds, "aws:sourceVpc")
 
-	if pdf == true {
-		return "COMPLIANT"
+	if pd != nil {
+		pds := pd.(string)
+		var pdf = new(PolicyDocument)
+		err := json.Unmarshal([]byte(pds), &pdf)
+		if err != nil {
+			fmt.Println("Error Unmarshal :", err)
+			return "NON_COMPLIANT"
+		}
+		if pdf.Statement[0].Condition.StringEquals.AwsSourceVpc != nil || pdf.Statement[0].Condition.ForAllValuesStringNotEquals.AwsSourceVpc != nil {
+			return "COMPLIANT"
+		}
 	}
 	return "NON_COMPLIANT"
 }
