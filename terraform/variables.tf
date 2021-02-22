@@ -22,6 +22,11 @@ variable "rule_s3_lifecycle_enabled" {
   default = true
 }
 
+variable "rule_s3_vpc_traffic_only_enabled" {
+  description = "Enable rule s3-vpc-traffic-only"
+  default = true
+}
+
 variable "rule_sg_public_access_enabled" {
   description = "Enable rule sg-public-access"
   default = true

@@ -4,7 +4,7 @@ all: clean build
 clean:
 	rm -rf *.zip
 
-build: s3-public-buckets sg-public-access sg-public-access-ergess
+build: s3-public-buckets sg-public-access sg-public-access-ergess s3-vpc-traffic-only
 
 s3-public-buckets:
 	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o s3-public-buckets cmd/s3-public-buckets/*.go
@@ -25,3 +25,8 @@ sg-public-access-ergess:
 	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o sg-public-access-egress cmd/sg-public-access-egress/*.go
 	zip sg-public-access-egress.zip sg-public-access-egress
 	rm -rf sg-public-access-egress
+
+s3-vpc-traffic-only:
+	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o s3-vpc-traffic-only cmd/s3-vpc-traffic-only/*.go
+	zip s3-vpc-traffic-only.zip s3-vpc-traffic-only
+	rm -rf s3-vpc-traffic-only

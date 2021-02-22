@@ -16,6 +16,46 @@ Params:
     - key: excludeBuckets
     - value: Comma separated list of buckets, e.g "bucket1, bucket2"
 
+
+### s3-vpc-traffic-only
+S3 VPC Traffic Only checks if there is a deny rule present in the S3 policy to block non-VPC traffic
+
+Example policy check: 
+
+```
+{
+    "Version": "2012-10-17",
+    "Id": "S3-test-bucket-policy",
+    "Statement": [
+        {
+            "Sid": "Access-to-specific-VPC-only",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::123456789:root"
+            },
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::test-bucket/*",
+                "arn:aws:s3:::test-bucket"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:sourceVpc": [
+                        "vpc-0e123454566755667",
+                        "vpc-0b3k3333443838838"
+                    ]
+                }
+            }
+        }
+    ]
+}
+```
+
+Params:
+- excludeBuckets: Skip compliance check for listed buckets
+    - key: excludeBuckets
+    - value: Comma separated list of buckets, e.g "bucket1, bucket2"
+
 ### sg-public-access
 Checks AWS security groups for rules that allow access from "0.0.0.0/0". A parameter can be added to exclude security groups in the format sg-12345:80+443, sg-45678. The first excludes only specific ports in a security group, the latter excludes the whole security group from compliance checks.
 
