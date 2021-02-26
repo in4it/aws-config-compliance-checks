@@ -25,3 +25,7 @@ output "sg_public_access_egress_id" {
 output "s3_public_buckets_id" {
   value = aws_config_config_rule.s3-public-buckets[0].id
 }
+
+output "permissions_boundaries_id" {
+  value = aws_config_config_rule.permissions-boundaries[0].id
+}

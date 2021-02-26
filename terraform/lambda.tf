@@ -103,6 +103,29 @@ resource "aws_iam_role" "sg-public-access" {
 EOF
 }
 
+resource "aws_iam_role" "permissions-boundaries" {
+  name = "Permissions-boundaries"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+
+
+
 resource "aws_iam_policy" "sg-public-access-egress" {
   name        = "sg-public-access-egress"
   path        = "/"
@@ -220,6 +243,83 @@ resource "aws_iam_policy" "config-s3-lifecycle" {
 EOF
 }
 
+resource "aws_iam_policy" "permissions-boundaries" {
+  name        = "permissions-boundaries"
+  path        = "/"
+  description = "IAM policy for logging and config from a lambda"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "logs:CreateLogGroup",
+            "Resource": [
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-permissions-boundaries"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-permissions-boundaries:log-stream:*"
+            ]
+        },
+        {
+            "Sid": "putEvaluations",
+            "Effect": "Allow",
+            "Action": [
+                "config:PutEvaluations"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_policy" "sg-public-access" {
+  name        = "sg-public-access"
+  path        = "/"
+  description = "IAM policy for logging and config from a lambda"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "logs:CreateLogGroup",
+            "Resource": [
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-sg-public-access"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-sg-public-access:*"
+            ]
+        },
+        {
+            "Sid": "putEvaluations",
+            "Effect": "Allow",
+            "Action": [
+                "config:PutEvaluations"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
 
 resource "aws_iam_policy" "s3-vpc-traffic-only" {
   name        = "s3-vpc-traffic-only"
@@ -263,46 +363,6 @@ EOF
 
 
 
-
-resource "aws_iam_policy" "sg-public-access" {
-  name        = "sg-public-access"
-  path        = "/"
-  description = "IAM policy for logging and config from a lambda"
-
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "logs:CreateLogGroup",
-            "Resource": [
-              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-sg-public-access"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-            ],
-            "Resource": [
-              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-sg-public-access:*"
-            ]
-        },
-        {
-            "Sid": "putEvaluations",
-            "Effect": "Allow",
-            "Action": [
-                "config:PutEvaluations"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-EOF
-}
-
 resource "aws_iam_role_policy_attachment" "sg-public-access-egress" {
   role       = aws_iam_role.sg-public-access-egress.name
   policy_arn = aws_iam_policy.sg-public-access-egress.arn
@@ -328,6 +388,10 @@ resource "aws_iam_role_policy_attachment" "s3-vpc-traffic-only" {
   policy_arn = aws_iam_policy.s3-vpc-traffic-only.arn
 }
 
+resource "aws_iam_role_policy_attachment" "permissions-boundaries" {
+  role       = aws_iam_role.permissions-boundaries.name
+  policy_arn = aws_iam_policy.permissions-boundaries.arn
+}
 
 resource "aws_lambda_function" "sg-public-access" {
   s3_bucket     = var.s3_bucket
@@ -389,6 +453,19 @@ resource "aws_lambda_function" "s3-vpc-traffic-only" {
 
 }
 
+resource "aws_lambda_function" "permissions-boundaries" {
+  s3_bucket     = var.s3_bucket
+  kms_key_arn   = var.s3_bucket_kms_key_arn
+  s3_key        = "lambdas/permissions-boundaries.zip"
+  function_name = "${var.resource_name_prefix}-permissions-boundaries"
+  role          = aws_iam_role.permissions-boundaries.arn
+  handler       = "permissions-boundaries"
+
+  runtime = "go1.x"
+
+}
+
+
 resource "aws_lambda_permission" "sg-public-access" {
   statement_id   = "AllowConfigToInvoke"
   action         = "lambda:InvokeFunction"
@@ -426,6 +503,14 @@ resource "aws_lambda_permission" "s3-vpc-traffic-only" {
   statement_id   = "AllowConfigToInvoke"
   action         = "lambda:InvokeFunction"
   function_name  = aws_lambda_function.s3-vpc-traffic-only.function_name
+  principal      = "config.amazonaws.com"
+  source_account = data.aws_caller_identity.current.account_id
+}
+
+resource "aws_lambda_permission" "permissions-boundaries" {
+  statement_id   = "AllowConfigToInvoke"
+  action         = "lambda:InvokeFunction"
+  function_name  = aws_lambda_function.permissions-boundaries.function_name
   principal      = "config.amazonaws.com"
   source_account = data.aws_caller_identity.current.account_id
 }

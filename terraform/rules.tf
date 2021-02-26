@@ -154,3 +154,34 @@ resource "aws_config_config_rule" "sg-public-access-egress" {
     }
   }
 }
+
+resource "aws_config_config_rule" "permissions-boundaries" {
+  count = var.rule_s3_vpc_traffic_only_enabled ? 1 : 0
+  description = "Checks if ecs tasks has a vpc traffic only on permissions boundaries"
+  input_parameters = jsonencode(
+    {
+      excludeBuckets = var.exclude_buckets
+    }
+  )
+  name = "${var.resource_name_prefix}-permissions-boundaries"
+
+  scope {
+    compliance_resource_types = [
+      "AWS::ECS::Tasks",
+    ]
+  }
+
+  source {
+    owner             = "CUSTOM_LAMBDA"
+    source_identifier = aws_lambda_function.permissions-boundaries.arn
+
+    source_detail {
+      event_source = "aws.config"
+      message_type = "ConfigurationItemChangeNotification"
+    }
+    source_detail {
+      event_source = "aws.config"
+      message_type = "OversizedConfigurationItemChangeNotification"
+    }
+  }
+}
