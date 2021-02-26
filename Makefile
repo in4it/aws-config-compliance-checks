@@ -5,6 +5,7 @@ clean:
 	rm -rf *.zip
 
 build: s3-public-buckets sg-public-access sg-public-access-ergess s3-vpc-traffic-only
+build-test: permissions-boundaries
 
 s3-public-buckets:
 	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o s3-public-buckets cmd/s3-public-buckets/*.go
@@ -30,3 +31,8 @@ s3-vpc-traffic-only:
 	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o s3-vpc-traffic-only cmd/s3-vpc-traffic-only/*.go
 	zip s3-vpc-traffic-only.zip s3-vpc-traffic-only
 	rm -rf s3-vpc-traffic-only
+
+permissions-boundaries:
+	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build -o permissions-boundaries cmd/permissions-boundaries/*.go
+	zip permissions-boundaries.zip permissions-boundaries
+	rm -rf permissions-boundaries
