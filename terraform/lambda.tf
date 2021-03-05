@@ -457,7 +457,7 @@ resource "aws_lambda_function" "check-permissions-boundaries" {
   s3_bucket     = var.s3_bucket
   kms_key_arn   = var.s3_bucket_kms_key_arn
   s3_key        = "lambdas/permissions-boundaries.zip"
-  function_name = "${var.resource_name_prefix}check-permissions-boundaries"
+  function_name = "${var.resource_name_prefix}-check-permissions-boundaries"
   role          = aws_iam_role.check-permissions-boundaries.arn
   handler       = "check-permissions-boundaries"
 
