@@ -104,7 +104,7 @@ EOF
 }
 
 resource "aws_iam_role" "check-permissions-boundaries" {
-  name = "Check Permissions Boundaries"
+  name = "check-permissions-boundaries"
 
   assume_role_policy = <<EOF
 {
