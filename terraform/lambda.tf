@@ -103,8 +103,8 @@ resource "aws_iam_role" "sg-public-access" {
 EOF
 }
 
-resource "aws_iam_role" "permissions-boundaries" {
-  name = "Permissions-boundaries"
+resource "aws_iam_role" "check-permissions-boundaries" {
+  name = "Check Permissions Boundaries"
 
   assume_role_policy = <<EOF
 {
