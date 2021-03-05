@@ -243,8 +243,8 @@ resource "aws_iam_policy" "config-s3-lifecycle" {
 EOF
 }
 
-resource "aws_iam_policy" "permissions-boundaries" {
-  name        = "permissions-boundaries"
+resource "aws_iam_policy" "check-permissions-boundaries" {
+  name        = "check-permissions-boundaries"
   path        = "/"
   description = "IAM policy for logging and config from a lambda"
 
@@ -256,7 +256,7 @@ resource "aws_iam_policy" "permissions-boundaries" {
             "Effect": "Allow",
             "Action": "logs:CreateLogGroup",
             "Resource": [
-              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-permissions-boundaries"
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-check-permissions-boundaries"
             ]
         },
         {
@@ -266,7 +266,7 @@ resource "aws_iam_policy" "permissions-boundaries" {
                 "logs:PutLogEvents"
             ],
             "Resource": [
-              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-permissions-boundaries:log-stream:*"
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-check-permissions-boundaries:log-stream:*"
             ]
         },
         {
@@ -388,9 +388,9 @@ resource "aws_iam_role_policy_attachment" "s3-vpc-traffic-only" {
   policy_arn = aws_iam_policy.s3-vpc-traffic-only.arn
 }
 
-resource "aws_iam_role_policy_attachment" "permissions-boundaries" {
-  role       = aws_iam_role.permissions-boundaries.name
-  policy_arn = aws_iam_policy.permissions-boundaries.arn
+resource "aws_iam_role_policy_attachment" "check-permissions-boundaries" {
+  role       = aws_iam_role.check-permissions-boundaries.name
+  policy_arn = aws_iam_policy.check-permissions-boundaries.arn
 }
 
 resource "aws_lambda_function" "sg-public-access" {
@@ -453,13 +453,13 @@ resource "aws_lambda_function" "s3-vpc-traffic-only" {
 
 }
 
-resource "aws_lambda_function" "permissions-boundaries" {
+resource "aws_lambda_function" "check-permissions-boundaries" {
   s3_bucket     = var.s3_bucket
   kms_key_arn   = var.s3_bucket_kms_key_arn
   s3_key        = "lambdas/permissions-boundaries.zip"
-  function_name = "${var.resource_name_prefix}-permissions-boundaries"
-  role          = aws_iam_role.permissions-boundaries.arn
-  handler       = "permissions-boundaries"
+  function_name = "${var.resource_name_prefix}check-permissions-boundaries"
+  role          = aws_iam_role.check-permissions-boundaries.arn
+  handler       = "check-permissions-boundaries"
 
   runtime = "go1.x"
 
@@ -507,10 +507,10 @@ resource "aws_lambda_permission" "s3-vpc-traffic-only" {
   source_account = data.aws_caller_identity.current.account_id
 }
 
-resource "aws_lambda_permission" "permissions-boundaries" {
+resource "aws_lambda_permission" "check-permissions-boundaries" {
   statement_id   = "AllowConfigToInvoke"
   action         = "lambda:InvokeFunction"
-  function_name  = aws_lambda_function.permissions-boundaries.function_name
+  function_name  = aws_lambda_function.check-permissions-boundaries.function_name
   principal      = "config.amazonaws.com"
   source_account = data.aws_caller_identity.current.account_id
 }

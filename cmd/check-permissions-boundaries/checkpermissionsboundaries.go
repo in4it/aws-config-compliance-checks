@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/configservice"
-	"strings"
 )
 
 type AWSConfigService interface {
@@ -43,18 +44,10 @@ func handleRequestWithConfigService(ctx context.Context, configEvent events.Conf
 
 	configurationItem = invokingEvent.ConfigurationItem
 
-	if params := getParams(configEvent, "excludeBuckets"); params != nil {
-		for _, v := range params {
-			if v == configurationItem.ResourceName {
-				fmt.Println("Skipping over Compliance check for resource", v, "Params: excludeBuckets")
-				status = "NOT_APPLICABLE"
-			}
-		}
-	}
-
 	if isApplicable(configurationItem, configEvent) && status == "" {
 		status = evaluateCompliance(configurationItem)
 	} else {
+		fmt.Printf("%v", configurationItem)
 		status = "NOT_APPLICABLE"
 	}
 
@@ -85,11 +78,11 @@ func handleRequestWithConfigService(ctx context.Context, configEvent events.Conf
 }
 
 func evaluateCompliance(c ConfigurationItem) string {
-	if c.ResourceType != "AWS::ECS::Tasks" {
-		return "NOT_APPLICABLE"
-	}
+	//if c.ResourceType != "AWS::IAM::" {
+	//	return "NOT_APPLICABLE"
+	//}
 
-	fmt.Println("", c.SupplementaryConfiguration)
+	fmt.Printf("%v", c.SupplementaryConfiguration)
 
 	//if pd != nil {
 	//	pds := pd.(string)
@@ -103,7 +96,7 @@ func evaluateCompliance(c ConfigurationItem) string {
 	//		return "COMPLIANT"
 	//	}
 	//}
-	return "NON_COMPLIANT"
+	return "COMPLIANT"
 }
 
 func getInvokingEvent(event []byte) (InvokingEvent, error) {

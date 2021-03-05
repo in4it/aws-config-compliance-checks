@@ -155,7 +155,7 @@ resource "aws_config_config_rule" "sg-public-access-egress" {
   }
 }
 
-resource "aws_config_config_rule" "permissions-boundaries" {
+resource "aws_config_config_rule" "check-permissions-boundaries" {
   count = var.rule_s3_vpc_traffic_only_enabled ? 1 : 0
   description = "Checks if ecs tasks has a vpc traffic only on permissions boundaries"
   input_parameters = jsonencode(
@@ -163,17 +163,17 @@ resource "aws_config_config_rule" "permissions-boundaries" {
       excludeBuckets = var.exclude_buckets
     }
   )
-  name = "${var.resource_name_prefix}-permissions-boundaries"
+  name = "${var.resource_name_prefix}check-permissions-boundaries"
 
   scope {
     compliance_resource_types = [
-      "AWS::ECS::Tasks",
+      "AWS::IAM::Policy",
     ]
   }
 
   source {
     owner             = "CUSTOM_LAMBDA"
-    source_identifier = aws_lambda_function.permissions-boundaries.arn
+    source_identifier = aws_lambda_function.check-permissions-boundaries.arn
 
     source_detail {
       event_source = "aws.config"
