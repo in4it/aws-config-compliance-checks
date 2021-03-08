@@ -163,7 +163,7 @@ resource "aws_config_config_rule" "check-permissions-boundaries" {
       excludeBuckets = var.exclude_buckets
     }
   )
-  name = "${var.resource_name_prefix}check-permissions-boundaries"
+  name = "${var.resource_name_prefix}-check-permissions-boundaries"
 
   scope {
     compliance_resource_types = [
