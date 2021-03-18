@@ -276,6 +276,14 @@ resource "aws_iam_policy" "check-permissions-boundaries" {
                 "config:PutEvaluations"
             ],
             "Resource": "*"
+        },
+        {
+            "Sid": "IamCheck",
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetPolicy"
+            ],
+            "Resource": "*"
         }
     ]
 }
