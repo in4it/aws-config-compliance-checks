@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
+	"net/url"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -47,7 +49,6 @@ func handleRequestWithConfigService(ctx context.Context, configEvent events.Conf
 	if isApplicable(configurationItem, configEvent) && status == "" {
 		status = evaluateCompliance(configurationItem)
 	} else {
-		fmt.Printf("%v", configurationItem)
 		status = "NOT_APPLICABLE"
 	}
 
@@ -78,11 +79,27 @@ func handleRequestWithConfigService(ctx context.Context, configEvent events.Conf
 }
 
 func evaluateCompliance(c ConfigurationItem) string {
-	//if c.ResourceType != "AWS::IAM::" {
-	//	return "NOT_APPLICABLE"
-	//}
+	if c.ResourceType != "AWS::IAM::Policy" {
+		return "NOT_APPLICABLE"
+	}
+	pd := c.SupplementaryConfiguration
+	pr := c.ResourceType
+	pn := c.ResourceName
+	pa := c.ARN
+	encodedValue := c.Configuration.PolicyVersionList[0].Document
+		pl, err := url.QueryUnescape(encodedValue)
+	if err != nil {
+		log.Fatal(err)
+		return "NOT_APPLICABLE"
+	}
 
-	fmt.Printf("%v", c.SupplementaryConfiguration)
+	fmt.Printf("SuppConfig: %v \n", pd)
+	fmt.Printf("Resourcetype: %v \n", pr)
+	fmt.Printf("ResourceName: %v \n", pn)
+	fmt.Printf("ARN: %v \n", pa)
+	fmt.Printf("PolicyType: %v\n", pl)
+
+	return "COMPLIANT"
 
 	//if pd != nil {
 	//	pds := pd.(string)
@@ -96,7 +113,7 @@ func evaluateCompliance(c ConfigurationItem) string {
 	//		return "COMPLIANT"
 	//	}
 	//}
-	return "COMPLIANT"
+
 }
 
 func getInvokingEvent(event []byte) (InvokingEvent, error) {

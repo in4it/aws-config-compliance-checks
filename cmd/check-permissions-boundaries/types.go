@@ -49,49 +49,23 @@ type Configuration struct {
 	Name         string    `json:"name"`
 	Owner        Owner     `json:"owner"`
 	CreationDate time.Time `json:"creationDate"`
+	PolicyVersionList []PolicyVersion `json:"policyVersionList"`
 }
-type BucketAccelerateConfiguration struct {
-	Status interface{} `json:"status"`
+
+type PolicyVersion struct {
+	CreateDate time.Time  `json:"createDate"`
+    Document string  `json:"document"`
+	IsDefaultVersion bool  `json:"isDefaultVersion"`
+	VersionId string  `json:"versionId"`
 }
-type BucketLoggingConfiguration struct {
-	DestinationBucketName interface{} `json:"destinationBucketName"`
-	LogFilePrefix         interface{} `json:"logFilePrefix"`
-}
-type Configurations struct {
-}
-type BucketNotificationConfiguration struct {
-	Configurations Configurations `json:"configurations"`
-}
-type BucketPolicy struct {
-	PolicyText interface{} `json:"policyText"`
-}
-type BucketVersioningConfiguration struct {
-	Status             string      `json:"status"`
-	IsMfaDeleteEnabled interface{} `json:"isMfaDeleteEnabled"`
-}
-type PublicAccessBlockConfiguration struct {
-	BlockPublicAcls       bool `json:"blockPublicAcls"`
-	IgnorePublicAcls      bool `json:"ignorePublicAcls"`
-	BlockPublicPolicy     bool `json:"blockPublicPolicy"`
-	RestrictPublicBuckets bool `json:"restrictPublicBuckets"`
-}
-type SupplementaryConfiguration struct {
-	AccessControlList               string                          `json:"AccessControlList"`
-	BucketAccelerateConfiguration   BucketAccelerateConfiguration   `json:"BucketAccelerateConfiguration"`
-	BucketLoggingConfiguration      BucketLoggingConfiguration      `json:"BucketLoggingConfiguration"`
-	BucketNotificationConfiguration BucketNotificationConfiguration `json:"BucketNotificationConfiguration"`
-	BucketPolicy                    BucketPolicy                    `json:"BucketPolicy"`
-	BucketVersioningConfiguration   BucketVersioningConfiguration   `json:"BucketVersioningConfiguration"`
-	IsRequesterPaysEnabled          bool                            `json:"IsRequesterPaysEnabled"`
-	PublicAccessBlockConfiguration  PublicAccessBlockConfiguration  `json:"PublicAccessBlockConfiguration"`
-}
+
 type Tags struct {
 }
 type ConfigurationItem struct {
 	RelatedEvents                []interface{}              `json:"relatedEvents"`
 	Relationships                []interface{}              `json:"relationships"`
 	Configuration                Configuration              `json:"configuration"`
-	SupplementaryConfiguration   SupplementaryConfiguration `json:"supplementaryConfiguration"`
+	SupplementaryConfiguration   interface{}                `json:"supplementaryConfiguration"`
 	Tags                         Tags                       `json:"tags"`
 	ConfigurationItemVersion     string                     `json:"configurationItemVersion"`
 	ConfigurationItemCaptureTime time.Time                  `json:"configurationItemCaptureTime"`
@@ -106,42 +80,4 @@ type ConfigurationItem struct {
 	AvailabilityZone             string                     `json:"availabilityZone"`
 	ConfigurationStateMd5Hash    string                     `json:"configurationStateMd5Hash"`
 	ResourceCreationTime         time.Time                  `json:"resourceCreationTime"`
-}
-
-type PolicyDocument struct {
-	Version   string         `json:"Version"`
-	ID        string         `json:"Id"`
-	Statement StatementEntry `json:"Statement"`
-}
-
-type StatementEntry []struct {
-	Sid       string         `json:"Sid"`
-	Effect    string         `json:"Effect"`
-	Principal interface{}    `json:"Principal"`
-	Action    string         `json:"Action"`
-	Resource  interface{}    `json:"Resource"`
-	Condition ConditionEntry `json:"Condition,omitempty"`
-}
-type ConditionEntry struct {
-	StringEquals                StringEqualsEntry                `json:"StringEquals"`
-	ForAllValuesStringNotEquals ForAllValuesStringNotEqualsEntry `json:"ForAllValues:StringNotEquals"`
-	ForAllValuesArnNotEquals    ForAllValuesArnNotEqualsEntry    `json:"ForAllValues:ArnNotEquals"`
-	ArnNotLike                  ArnNotLikeEntry                  `json:"ArnNotLike"`
-}
-
-type ForAllValuesArnNotEqualsEntry struct {
-	AwsPrincipalArn interface{} `json:"aws:PrincipalArn"`
-}
-
-type StringEqualsEntry struct {
-	AwsSourceVpc []string `json:"aws:sourceVpc"`
-}
-
-type ForAllValuesStringNotEqualsEntry struct {
-	AwsSourceVpc []string `json:"aws:sourceVpc"`
-	AwsCalledVia string   `json:"aws:CalledVia"`
-}
-type ArnNotLikeEntry struct {
-	AwsUsername     string   `json:"aws:username"`
-	AwsPrincipalArn []string `json:"aws:PrincipalArn"`
 }
