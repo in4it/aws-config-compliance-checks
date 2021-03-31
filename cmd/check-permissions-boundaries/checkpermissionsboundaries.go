@@ -82,38 +82,31 @@ func evaluateCompliance(c ConfigurationItem) string {
 	if c.ResourceType != "AWS::IAM::Policy" {
 		return "NOT_APPLICABLE"
 	}
-	pd := c.SupplementaryConfiguration
-	pr := c.ResourceType
+
 	pn := c.ResourceName
-	pa := c.ARN
-	encodedValue := c.Configuration.PolicyVersionList[0].Document
-		pl, err := url.QueryUnescape(encodedValue)
-	if err != nil {
-		log.Fatal(err)
-		return "NOT_APPLICABLE"
-	}
-
-	fmt.Printf("SuppConfig: %v \n", pd)
-	fmt.Printf("Resourcetype: %v \n", pr)
 	fmt.Printf("ResourceName: %v \n", pn)
-	fmt.Printf("ARN: %v \n", pa)
-	fmt.Printf("PolicyType: %v\n", pl)
-
-	return "COMPLIANT"
-
-	//if pd != nil {
-	//	pds := pd.(string)
-	//	var pdf = new(PolicyDocument)
-	//	err := json.Unmarshal([]byte(pds), &pdf)
-	//	if err != nil {
-	//		fmt.Println("Error Unmarshal :", err)
-	//		return "NON_COMPLIANT"
-	//	}
-	//	if len(pdf.Statement[0].Condition.StringEquals.AwsSourceVpc) > 0 || len(pdf.Statement[0].Condition.ForAllValuesStringNotEquals.AwsSourceVpc) > 0 {
-	//		return "COMPLIANT"
-	//	}
-	//}
-
+    ms := "permissions-boundary"
+	if strings.Contains(pn, ms) {
+		fmt.Printf("Match!")
+		encodedValue := c.Configuration.PolicyVersionList[0].Document
+		pl, err := url.QueryUnescape(encodedValue)
+		if err != nil {
+			log.Fatal(err)
+			return "NON_COMPLIANT"
+		}
+		fmt.Printf("UNESCAPE: %v",pl)
+		var pdf = new(PolicyDocument)
+		err2 := json.Unmarshal([]byte(pl), &pdf)
+		if err2 != nil {
+			log.Fatal(err2)
+			return "NON_COMPLIANT"
+		}
+		fmt.Printf("UNMARSHAL: %v",pdf)
+		if len(pdf.Statement[0].Condition.StringEquals.AwsSourceVpc) > 0 || len(pdf.Statement[0].Condition.ForAllValuesStringNotEquals.AwsSourceVpc) > 0 || len(pdf.Statement[0].Condition.ForAnyValueStringEquals.AwsSourceVpc) > 0 {
+			return "COMPLIANT"
+		}
+	}
+	return "NOT_APPLICABLE"
 }
 
 func getInvokingEvent(event []byte) (InvokingEvent, error) {

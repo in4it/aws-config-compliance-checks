@@ -45,19 +45,6 @@ type Owner struct {
 	DisplayName interface{} `json:"displayName"`
 	ID          string      `json:"id"`
 }
-type Configuration struct {
-	Name         string    `json:"name"`
-	Owner        Owner     `json:"owner"`
-	CreationDate time.Time `json:"creationDate"`
-	PolicyVersionList []PolicyVersion `json:"policyVersionList"`
-}
-
-type PolicyVersion struct {
-	CreateDate time.Time  `json:"createDate"`
-    Document string  `json:"document"`
-	IsDefaultVersion bool  `json:"isDefaultVersion"`
-	VersionId string  `json:"versionId"`
-}
 
 type Tags struct {
 }
@@ -80,4 +67,61 @@ type ConfigurationItem struct {
 	AvailabilityZone             string                     `json:"availabilityZone"`
 	ConfigurationStateMd5Hash    string                     `json:"configurationStateMd5Hash"`
 	ResourceCreationTime         time.Time                  `json:"resourceCreationTime"`
+}
+
+type Configuration struct {
+	Name         string    `json:"name"`
+	Owner        Owner     `json:"owner"`
+	CreationDate time.Time `json:"creationDate"`
+	PolicyVersionList []PolicyVersion `json:"policyVersionList"`
+}
+
+type PolicyVersion struct {
+	CreateDate time.Time  `json:"createDate"`
+	Document string  `json:"document"`
+	IsDefaultVersion bool  `json:"isDefaultVersion"`
+	VersionId string  `json:"versionId"`
+}
+
+type PolicyDocument struct {
+	Version   string         `json:"Version"`
+	ID        string         `json:"Id"`
+	Statement StatementEntry `json:"Statement"`
+}
+
+type StatementEntry []struct {
+	Sid       string         `json:"Sid"`
+	Effect    string         `json:"Effect"`
+	Principal interface{}    `json:"Principal"`
+	Action    interface{}    `json:"Action"`
+	Resource  interface{}    `json:"Resource"`
+	Condition ConditionEntry `json:"Condition,omitempty"`
+}
+type ConditionEntry struct {
+	StringEquals                StringEqualsEntry                `json:"StringEquals"`
+	ForAllValuesStringNotEquals ForAllValuesStringNotEqualsEntry `json:"ForAllValues:StringNotEquals"`
+	ForAllValuesArnNotEquals    ForAllValuesArnNotEqualsEntry    `json:"ForAllValues:ArnNotEquals"`
+	ForAnyValueStringEquals     ForAnyValueStringEqualsEntry     `json:ForAnyValue:StringEquals`
+	ArnNotLike                  ArnNotLikeEntry                  `json:"ArnNotLike"`
+}
+
+type ForAllValuesArnNotEqualsEntry struct {
+	AwsPrincipalArn interface{} `json:"aws:PrincipalArn"`
+}
+
+type StringEqualsEntry struct {
+	AwsSourceVpc string `json:"aws:sourceVpc"`
+}
+
+type ForAnyValueStringEqualsEntry  struct {
+	AwsSourceVpc []string `json:"aws:sourceVpc"`
+}
+
+type ForAllValuesStringNotEqualsEntry struct {
+	AwsSourceVpc []string `json:"aws:sourceVpc"`
+	AwsCalledVia string   `json:"aws:CalledVia"`
+}
+type ArnNotLikeEntry struct {
+	AwsUsername     string   `json:"aws:username"`
+	AwsPrincipalArn []string `json:"aws:PrincipalArn"`
 }
