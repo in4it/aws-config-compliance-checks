@@ -1,0 +1,51 @@
+    {
+
+        "configurationItemDiff": null,
+        "configurationItem": {
+            "relatedEvents": [],
+            "relationships": [{
+                "resourceId": "DFDUBPQTMD5AROAUYBXUI",
+                "resourceName": "case1",
+                "resourceType": "AWS::IAM::Role",
+                "name": "Is attached to Role"
+            }],
+            "configuration": {
+                "policyName": "case1-permissions-boundary",
+                "policyId": "XUIDFCKUMYKVINANPAUYB",
+                "arn": "arn:aws:iam::123456789:policy/case1-permissions-boundary",
+                "path": "/",
+                "defaultVersionId": "v1",
+                "attachmentCount": 0,
+                "permissionsBoundaryUsageCount": 1,
+                "isAttachable": true,
+                "description": "permissions boundary case 1",
+                "createDate": "2018-06-19T11:50:32.000Z",
+                "updateDate": "2019-09-17T09:26:46.000Z",
+                "policyVersionList": [{
+                    "document": "%7B%0A%20%20%20%20%22Version%22%3A%20%222012-10-17%22%2C%0A%20%20%20%20%22Statement%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%22%2A%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22%2A%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Condition%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22ForAnyValue%3AStringEquals%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22aws%3ASourceVpc%22%3A%20%5B%22vpc-1a2s3d34f45fg4g%22%2C%20%22vpc-1k2j3j4h4g5f%22%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%22%2A%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22%2A%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Condition%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22IpAddress%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22aws%3ASourceIp%22%3A%20%5B%20%2210.1.0.0%2F16%22%2C%20%2210.10.0.0%2F16%22%20%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22athena%3A%2A%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22kms%3A%2A%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22s3%3A%2A%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%5D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22%2A%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Condition%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22ForAnyValue%3AStringEquals%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22aws%3ACalledVia%22%3A%20%5B%22athena.amazonaws.com%22%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22kms%3A%2A%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%5D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22%2A%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Condition%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22StringEquals%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22kms%3AViaService%22%3A%20%5B%22s3.eu-central-1.amazonaws.com%22%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%0A%7D%0A",
+                    "versionId": "v20",
+                    "isDefaultVersion": true,
+                    "createDate": "2020-09-17T09:26:46.000Z"
+                }]
+            },
+            "supplementaryConfiguration": {},
+            "tags": {},
+            "configurationItemVersion": "1.3",
+            "configurationItemCaptureTime": "2019-09-17T09:34:05.855Z",
+            "configurationStateId": 1600335245855,
+            "awsAccountId": "123456789",
+            "configurationItemStatus": "OK",
+            "resourceType": "AWS::IAM::Policy",
+            "resourceId": "ANPAUYBXUIDFCKUMYKVIN",
+            "resourceName": "case1-permissions-boundary",
+            "ARN": "arn:aws:iam::123456789:policy/case1-permissions-boundary",
+            "awsRegion": "global",
+            "availabilityZone": "Not Applicable",
+            "configurationStateMd5Hash": "",
+            "resourceCreationTime": "2020-06-19T11:50:32.000Z"
+        },
+        "notificationCreationTime": "2020-04-12T12:56:49.791Z",
+        "messageType": "ConfigurationItemChangeNotification",
+        "recordVersion": "1.3"
+
+}

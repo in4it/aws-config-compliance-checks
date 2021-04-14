@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
-	"strings"
 	"net/url"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -18,6 +18,12 @@ import (
 type AWSConfigService interface {
 	PutEvaluations(*configservice.PutEvaluationsInput) (*configservice.PutEvaluationsOutput, error)
 }
+
+type container struct {
+	Field customSlice
+}
+
+type customSlice []string
 
 func main() {
 	lambda.Start(handleRequest)
@@ -87,22 +93,47 @@ func evaluateCompliance(c ConfigurationItem) string {
 	fmt.Printf("ResourceName: %v \n", pn)
     ms := "permissions-boundary"
 	if strings.Contains(pn, ms) {
-		fmt.Printf("Match!")
 		encodedValue := c.Configuration.PolicyVersionList[0].Document
 		pl, err := url.QueryUnescape(encodedValue)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println("Error:", err)
+			fmt.Println("UNESCAPE ERROR")
 			return "NON_COMPLIANT"
 		}
-		fmt.Printf("UNESCAPE: %v",pl)
 		var pdf = new(PolicyDocument)
+
 		err2 := json.Unmarshal([]byte(pl), &pdf)
+
+		fmt.Printf("%v", pl)
 		if err2 != nil {
-			log.Fatal(err2)
+			fmt.Println("Error:", err2)
+			fmt.Println("UNMASHALL ERROR")
 			return "NON_COMPLIANT"
 		}
-		fmt.Printf("UNMARSHAL: %v",pdf)
-		if len(pdf.Statement[0].Condition.StringEquals.AwsSourceVpc) > 0 || len(pdf.Statement[0].Condition.ForAllValuesStringNotEquals.AwsSourceVpc) > 0 || len(pdf.Statement[0].Condition.ForAnyValueStringEquals.AwsSourceVpc) > 0 {
+
+		var containerStringEquals container
+		var containerForallvaluesStringnotequals container
+		var containerForanyvalueStringequals container
+
+		StringEquals := pdf.Statement[0].Condition.StringEquals.AwsSourcevpc
+		ForallvaluesStringnotequals := pdf.Statement[0].Condition.ForallvaluesArnnotequals.AwsSourcevpc
+		ForanyvalueStringequals := pdf.Statement[0].Condition.ForanyvalueStringequals.AwsSourcevpc
+
+        err3 := json.Unmarshal([]byte(StringEquals.(string)), &containerStringEquals)
+		if err3 != nil {
+			panic(err3)
+		}
+		err4 := json.Unmarshal([]byte(ForallvaluesStringnotequals.(string)), &containerForallvaluesStringnotequals)
+		if err4 != nil {
+			panic(err4)
+		}
+		err5 := json.Unmarshal([]byte(ForanyvalueStringequals.(string)), &containerForanyvalueStringequals)
+		if err != nil {
+			panic(err5)
+		}
+
+
+		if len(StringEquals.(string)) > 0 || len(ForallvaluesStringnotequals.([]string)) > 0 || len(ForanyvalueStringequals.([]string)) > 0 {
 			return "COMPLIANT"
 		}
 	}
@@ -144,4 +175,25 @@ func getParams(p events.ConfigEvent, param string) []string {
 		return nil
 	}
 	return nil
+}
+
+func (c *customSlice) UnmarshalJSON(data []byte) error {
+	var tmp interface{}
+	err := json.Unmarshal(data, &tmp)
+	if err != nil {
+		return err
+	}
+	slice, ok := tmp.([]interface{})
+	if ok {
+		for _, item := range slice {
+			*c = append(*c, item.(string))
+		}
+		return nil
+	}
+	theString, ok := tmp.(string)
+	if ok {
+		*c = append(*c, theString)
+		return nil
+	}
+	return errors.New("Field neither slice or string")
 }

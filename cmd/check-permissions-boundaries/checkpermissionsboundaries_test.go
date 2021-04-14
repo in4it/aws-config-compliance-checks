@@ -7,7 +7,7 @@ import (
 )
 
 func TestEvaluateComplianceNoNcompliant(t *testing.T) {
-	data, _ := ioutil.ReadFile("events/noncompliant.json")
+	data, _ := ioutil.ReadFile("events/case1.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {
@@ -29,7 +29,7 @@ func TestEvaluateComplianceNoNcompliant(t *testing.T) {
 
 func TestEvaluateCompliant(t *testing.T) {
 
-	data, _ := ioutil.ReadFile("events/compliant.json")
+	data, _ := ioutil.ReadFile("events/case1.json")
 	m, err := getInvokingEvent(data)
 
 	if err != nil {

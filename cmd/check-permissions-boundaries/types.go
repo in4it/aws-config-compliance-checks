@@ -94,34 +94,34 @@ type StatementEntry []struct {
 	Effect    string         `json:"Effect"`
 	Principal interface{}    `json:"Principal"`
 	Action    interface{}    `json:"Action"`
-	Resource  interface{}    `json:"Resource"`
+	Resource  interface{}   `json:"Resource"`
 	Condition ConditionEntry `json:"Condition,omitempty"`
 }
 type ConditionEntry struct {
 	StringEquals                StringEqualsEntry                `json:"StringEquals"`
-	ForAllValuesStringNotEquals ForAllValuesStringNotEqualsEntry `json:"ForAllValues:StringNotEquals"`
-	ForAllValuesArnNotEquals    ForAllValuesArnNotEqualsEntry    `json:"ForAllValues:ArnNotEquals"`
-	ForAnyValueStringEquals     ForAnyValueStringEqualsEntry     `json:ForAnyValue:StringEquals`
+	ForallvaluesStringnotequals ForallvaluesArnnotequalsentry    `json:"ForAllValues:StringNotEquals"`
+	ForallvaluesArnnotequals    ForallvaluesStringnotequalsentry `json:"ForAllValues:ArnNotEquals"`
+	ForanyvalueStringequals     ForanyvalueStringequalsentry	 `json:"ForAnyValue:StringEquals"`
 	ArnNotLike                  ArnNotLikeEntry                  `json:"ArnNotLike"`
 }
 
-type ForAllValuesArnNotEqualsEntry struct {
+type ForallvaluesArnnotequalsentry struct {
 	AwsPrincipalArn interface{} `json:"aws:PrincipalArn"`
 }
 
 type StringEqualsEntry struct {
-	AwsSourceVpc string `json:"aws:sourceVpc"`
+	AwsSourcevpc interface{} `json:"aws:SourceVpc"`
 }
 
-type ForAnyValueStringEqualsEntry  struct {
-	AwsSourceVpc []string `json:"aws:sourceVpc"`
+type ForanyvalueStringequalsentry  struct {
+	AwsSourcevpc interface{} `json:"aws:SourceVpc"`
 }
 
-type ForAllValuesStringNotEqualsEntry struct {
-	AwsSourceVpc []string `json:"aws:sourceVpc"`
-	AwsCalledVia string   `json:"aws:CalledVia"`
+type ForallvaluesStringnotequalsentry struct {
+	AwsSourcevpc interface{} `json:"aws:SourceVpc"`
+	AwsCalledvia string   `json:"aws:CalledVia"`
 }
 type ArnNotLikeEntry struct {
-	AwsUsername     string   `json:"aws:username"`
-	AwsPrincipalArn []string `json:"aws:PrincipalArn"`
+	AwsUsername     string   `json:"aws:Username"`
+	AwsPrincipalarn []string `json:"aws:PrincipalArn"`
 }
