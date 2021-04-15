@@ -1,0 +1,43 @@
+ {
+        "configurationItemDiff": null,
+        "configurationItem": {
+            "relatedEvents": [],
+            "configuration": {
+                "policyName": "case4-permissions-boundary",
+                "policyId": "IDFHLJLIZALGANPAUYBXU",
+                "arn": "arn:aws:iam::123456789:policy/case4-permissions-boundary",
+                "path": "/",
+                "defaultVersionId": "v11",
+                "attachmentCount": 0,
+                "permissionsBoundaryUsageCount": 1,
+                "isAttachable": true,
+                "description": "permissions boundary for case4",
+                "createDate": "2019-12-30T11:20:37.000Z",
+                "updateDate": "2020-03-09T09:32:54.000Z",
+                "policyVersionList": [{
+                    "document": "%7B%0A%20%20%20%20%22Version%22%3A%20%222012-10-17%22%2C%0A%20%20%20%20%22Statement%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%22*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Condition%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22ForAnyValue%3AStringEquals%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22aws%3ASourceVpc%22%3A%20%5B%22vpc-cad0e371a0e2ff881%22%2C%20%22vpc-5f1a261fe0b3764ef%22%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%22s3%3A*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Condition%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22ForAnyValue%3AStringEquals%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22aws%3ASourceVpce%22%3A%20%5B%20%22vpce-1d50da9d90a2eaebd%22%20%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%22*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Condition%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22IpAddress%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22aws%3ASourceIp%22%3A%20%5B%20%2210.1.0.0/16%22%2C%20%2210.2.0.0/16%22%20%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%0A%7D%0A",
+                    "versionId": "v11",
+                    "isDefaultVersion": true,
+                    "createDate": "2020-03-09T09:32:54.000Z"
+                }]
+            },
+            "supplementaryConfiguration": {},
+            "tags": {},
+            "configurationItemVersion": "1.3",
+            "configurationItemCaptureTime": "2021-03-09T09:40:24.633Z",
+            "configurationStateId": 1615282824633,
+            "awsAccountId": "123456789",
+            "configurationItemStatus": "OK",
+            "resourceType": "AWS::IAM::Policy",
+            "resourceId": "IDFHLJLIZALGANPAUYBXU",
+            "resourceName": "case4-permissions-boundary",
+            "ARN": "arn:aws:iam::123456789:policy/case4-permissions-boundary",
+            "awsRegion": "global",
+            "availabilityZone": "Not Applicable",
+            "configurationStateMd5Hash": "",
+            "resourceCreationTime": "2019-12-30T11:20:37.000Z"
+        },
+        "notificationCreationTime": "2020-04-12T13:56:49.759Z",
+        "messageType": "ConfigurationItemChangeNotification",
+        "recordVersion": "1.3"
+}

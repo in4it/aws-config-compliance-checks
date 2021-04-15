@@ -106,11 +106,11 @@ type ConditionEntry struct {
 }
 
 type ForallvaluesArnnotequalsentry struct {
-	AwsPrincipalArn interface{} `json:"aws:PrincipalArn"`
+	AwsPrincipalArn string `json:"aws:PrincipalArn"`
 }
 
 type StringEqualsEntry struct {
-	AwsSourcevpc interface{} `json:"aws:SourceVpc"`
+	AwsSourcevpc string `json:"aws:SourceVpc"`
 }
 
 type ForanyvalueStringequalsentry  struct {
@@ -125,3 +125,9 @@ type ArnNotLikeEntry struct {
 	AwsUsername     string   `json:"aws:Username"`
 	AwsPrincipalarn []string `json:"aws:PrincipalArn"`
 }
+
+type container struct {
+	Field customSlice `json:"aws:SourceVpc"`
+}
+
+type customSlice []string

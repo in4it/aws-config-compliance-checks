@@ -1,0 +1,43 @@
+     {
+        "configurationItemDiff": null,
+        "configurationItem": {
+            "relatedEvents": [],
+            "configuration": {
+                "policyName": "case2-permissions-boundary",
+                "policyId": "IDFARKQABNLEANPAUYBXU",
+                "arn": "arn:aws:iam::123456789:policy/ecs-dino-permissions-boundary",
+                "path": "/",
+                "defaultVersionId": "v1",
+                "attachmentCount": 0,
+                "permissionsBoundaryUsageCount": 20,
+                "isAttachable": true,
+                "description": null,
+                "createDate": "2019-01-03T10:20:33.000Z",
+                "updateDate": "2018-02-05T10:52:12.000Z",
+                "policyVersionList": [{
+                    "document": "%7B%0A%20%20%20%20%22Version%22%3A%20%222012-10-17%22%2C%0A%20%20%20%20%22Statement%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%22*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Condition%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22ForAnyValue%3AStringEquals%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22aws%3AsourceVpc%22%3A%20%5B%22vpc-0b0d44c274c7cf88d%22%2C%20%22vpc-081cad0e37e2ff81a%22%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%22*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Condition%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22IpAddress%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22aws%3ASourceIp%22%3A%20%5B%20%2210.1.0.0/16%22%2C%20%2210.2.0.0/16%22%5D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%22rds-db%3Aconnect%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22*%22%0A%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%22kms%3A*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22*%22%0A%20%20%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Action%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22cognito-identity%3A*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22cognito-sync%3A*%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%22cognito-idp%3A*%22%0A%20%20%20%20%20%20%20%20%20%20%20%20%5D%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Effect%22%3A%20%22Allow%22%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20%22Resource%22%3A%20%22*%22%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%0A%7D%0A",
+                    "versionId": "v1",
+                    "isDefaultVersion": true,
+                    "createDate": "2020-02-05T10:52:12.000Z"
+                }]
+            },
+            "supplementaryConfiguration": {},
+            "tags": {},
+            "configurationItemVersion": "1.3",
+            "configurationItemCaptureTime": "2020-04-11T06:11:49.389Z",
+            "configurationStateId": 1618509389121,
+            "awsAccountId": "123456789",
+            "configurationItemStatus": "OK",
+            "resourceType": "AWS::IAM::Policy",
+            "resourceId": "ANPAUYDFARKQABNLEBXUI",
+            "resourceName": "case2-permissions-boundary",
+            "ARN": "arn:aws:iam::326534185162:policy/case2-permissions-boundary",
+            "awsRegion": "global",
+            "availabilityZone": "Not Applicable",
+            "configurationStateMd5Hash": "",
+            "resourceCreationTime": "2019-01-03T10:20:33.000Z"
+        },
+        "notificationCreationTime": "2020-04-12T13:56:49.375Z",
+        "messageType": "ConfigurationItemChangeNotification",
+        "recordVersion": "1.3"
+    }

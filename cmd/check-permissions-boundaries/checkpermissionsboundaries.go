@@ -19,12 +19,6 @@ type AWSConfigService interface {
 	PutEvaluations(*configservice.PutEvaluationsInput) (*configservice.PutEvaluationsOutput, error)
 }
 
-type container struct {
-	Field customSlice
-}
-
-type customSlice []string
-
 func main() {
 	lambda.Start(handleRequest)
 }
@@ -90,14 +84,12 @@ func evaluateCompliance(c ConfigurationItem) string {
 	}
 
 	pn := c.ResourceName
-	fmt.Printf("ResourceName: %v \n", pn)
     ms := "permissions-boundary"
 	if strings.Contains(pn, ms) {
 		encodedValue := c.Configuration.PolicyVersionList[0].Document
 		pl, err := url.QueryUnescape(encodedValue)
 		if err != nil {
 			fmt.Println("Error:", err)
-			fmt.Println("UNESCAPE ERROR")
 			return "NON_COMPLIANT"
 		}
 		var pdf = new(PolicyDocument)
@@ -107,34 +99,43 @@ func evaluateCompliance(c ConfigurationItem) string {
 		fmt.Printf("%v", pl)
 		if err2 != nil {
 			fmt.Println("Error:", err2)
-			fmt.Println("UNMASHALL ERROR")
 			return "NON_COMPLIANT"
 		}
 
-		var containerStringEquals container
 		var containerForallvaluesStringnotequals container
 		var containerForanyvalueStringequals container
 
-		StringEquals := pdf.Statement[0].Condition.StringEquals.AwsSourcevpc
-		ForallvaluesStringnotequals := pdf.Statement[0].Condition.ForallvaluesArnnotequals.AwsSourcevpc
-		ForanyvalueStringequals := pdf.Statement[0].Condition.ForanyvalueStringequals.AwsSourcevpc
-
-        err3 := json.Unmarshal([]byte(StringEquals.(string)), &containerStringEquals)
-		if err3 != nil {
-			panic(err3)
-		}
-		err4 := json.Unmarshal([]byte(ForallvaluesStringnotequals.(string)), &containerForallvaluesStringnotequals)
-		if err4 != nil {
-			panic(err4)
-		}
-		err5 := json.Unmarshal([]byte(ForanyvalueStringequals.(string)), &containerForanyvalueStringequals)
-		if err != nil {
-			panic(err5)
+		if len(pdf.Statement[0].Condition.StringEquals.AwsSourcevpc) > 0 {
+			if strings.Contains(pdf.Statement[0].Condition.StringEquals.AwsSourcevpc, "vpc-") {
+				return "COMPLIANT"
+			}
+			return "NON_COMPLIANT"
 		}
 
+		if pdf.Statement[0].Condition.ForallvaluesArnnotequals.AwsSourcevpc != nil {
+			ForallvaluesStringnotequals := fmt.Sprintf("%v", pdf.Statement[0].Condition.ForallvaluesArnnotequals.AwsSourcevpc)
+			if len(ForallvaluesStringnotequals) > 0 {
+				err3 := json.Unmarshal([]byte(ForallvaluesStringnotequals), &containerForallvaluesStringnotequals)
+				if err3 != nil {
+					panic(err3)
+					return "NON_COMPLIANT"
+				}
+				return "COMPLIANT"
+			}
+			return "NON_COMPLIANT"
+		}
 
-		if len(StringEquals.(string)) > 0 || len(ForallvaluesStringnotequals.([]string)) > 0 || len(ForanyvalueStringequals.([]string)) > 0 {
-			return "COMPLIANT"
+		if pdf.Statement[0].Condition.ForanyvalueStringequals.AwsSourcevpc != nil {
+			ForanyvalueStringequals := fmt.Sprintf("%v", pdf.Statement[0].Condition.ForanyvalueStringequals.AwsSourcevpc)
+			if len(ForanyvalueStringequals) > 0{
+				err4 := json.Unmarshal([]byte(ForanyvalueStringequals), &containerForanyvalueStringequals)
+				if err != nil {
+					return "NON_COMPLIANT"
+					panic(err4)
+				}
+				return "COMPLIANT"
+			}
+			return "NON_COMPLIANT"
 		}
 	}
 	return "NOT_APPLICABLE"
