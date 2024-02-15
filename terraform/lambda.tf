@@ -194,7 +194,7 @@ resource "aws_iam_policy" "config-s3-lifecycle" {
             "Effect": "Allow",
             "Action": "logs:CreateLogGroup",
             "Resource": [
-              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-config-s3-lifecycle"
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-s3-lifecycle"
             ]
         },
         {
@@ -204,7 +204,7 @@ resource "aws_iam_policy" "config-s3-lifecycle" {
                 "logs:PutLogEvents"
             ],
             "Resource": [
-              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-config-s3-lifecycle:log-stream:*"
+              "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.resource_name_prefix}-s3-lifecycle:log-stream:*"
             ]
         },
         {
@@ -259,10 +259,6 @@ resource "aws_iam_policy" "s3-vpc-traffic-only" {
 }
 EOF
 }
-
-
-
-
 
 resource "aws_iam_policy" "sg-public-access" {
   name        = "sg-public-access"
@@ -329,6 +325,33 @@ resource "aws_iam_role_policy_attachment" "s3-vpc-traffic-only" {
 }
 
 
+# cloudwatch groups
+resource "aws_cloudwatch_log_group" "sg-public-access" {
+  name              = "/aws/lambda/${var.resource_name_prefix}-sg-public-access"
+  retention_in_days = var.cloudwatch_log_retention_period
+}
+
+resource "aws_cloudwatch_log_group" "sg-public-access-egress" {
+  name              = "/aws/lambda/${var.resource_name_prefix}-sg-public-access-egress"
+  retention_in_days = var.cloudwatch_log_retention_period
+}
+
+resource "aws_cloudwatch_log_group" "s3-public-buckets" {
+  name              = "/aws/lambda/${var.resource_name_prefix}-s3-public-buckets"
+  retention_in_days = var.cloudwatch_log_retention_period
+}
+
+resource "aws_cloudwatch_log_group" "s3-lifecycle" {
+  name              = "/aws/lambda/${var.resource_name_prefix}-s3-lifecycle"
+  retention_in_days = var.cloudwatch_log_retention_period
+}
+
+resource "aws_cloudwatch_log_group" "s3-vpc-traffic-only" {
+  name              = "/aws/lambda/${var.resource_name_prefix}-s3-vpc-traffic-only"
+  retention_in_days = var.cloudwatch_log_retention_period
+}
+
+# lambdas
 resource "aws_lambda_function" "sg-public-access" {
   s3_bucket     = var.s3_bucket
   kms_key_arn   = var.s3_bucket_kms_key_arn
@@ -339,6 +362,10 @@ resource "aws_lambda_function" "sg-public-access" {
 
   runtime = "go1.x"
 
+  depends_on = [
+    aws_iam_role_policy_attachment.sg-public-access,
+    aws_cloudwatch_log_group.sg-public-access
+  ]
 }
 
 resource "aws_lambda_function" "s3-public-buckets" {
@@ -351,6 +378,10 @@ resource "aws_lambda_function" "s3-public-buckets" {
 
   runtime = "go1.x"
 
+  depends_on = [
+    aws_iam_role_policy_attachment.s3-public-buckets,
+    aws_cloudwatch_log_group.s3-public-buckets
+  ]
 }
 
 resource "aws_lambda_function" "s3-lifecycle" {
@@ -363,6 +394,10 @@ resource "aws_lambda_function" "s3-lifecycle" {
 
   runtime = "go1.x"
 
+  depends_on = [
+    aws_iam_role_policy_attachment.config-s3-lifecycle,
+    aws_cloudwatch_log_group.s3-lifecycle
+  ]
 }
 
 resource "aws_lambda_function" "sg-public-access-egress" {
@@ -375,6 +410,10 @@ resource "aws_lambda_function" "sg-public-access-egress" {
 
   runtime = "go1.x"
 
+  depends_on = [
+    aws_iam_role_policy_attachment.sg-public-access-egress,
+    aws_cloudwatch_log_group.sg-public-access-egress
+  ]
 }
 
 resource "aws_lambda_function" "s3-vpc-traffic-only" {
@@ -387,6 +426,10 @@ resource "aws_lambda_function" "s3-vpc-traffic-only" {
 
   runtime = "go1.x"
 
+  depends_on = [
+    aws_iam_role_policy_attachment.s3-vpc-traffic-only,
+    aws_cloudwatch_log_group.s3-vpc-traffic-only
+  ]
 }
 
 resource "aws_lambda_permission" "sg-public-access" {

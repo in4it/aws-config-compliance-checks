@@ -51,3 +51,8 @@ variable "exclude_security_groups_egress" {
   description = "Skip ingress compliance check for listed Security Groups"
   default = ""
 }
+
+variable "cloudwatch_log_retention_period" {
+  description = "cloudwatch retention period in days"
+  default     = "0"
+}
