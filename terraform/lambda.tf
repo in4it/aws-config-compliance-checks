@@ -358,9 +358,9 @@ resource "aws_lambda_function" "sg-public-access" {
   s3_key        = "lambdas/sg-public-access.zip"
   function_name = "${var.resource_name_prefix}-sg-public-access"
   role          = aws_iam_role.sg-public-access.arn
-  handler       = "sg-public-access"
-
-  runtime = "go1.x"
+  handler       = "bootstrap"
+  runtime       = "provided.al2023"
+  architectures = ["arm64"]
 
   depends_on = [
     aws_iam_role_policy_attachment.sg-public-access,
@@ -374,9 +374,9 @@ resource "aws_lambda_function" "s3-public-buckets" {
   s3_key        = "lambdas/s3-public-buckets.zip"
   function_name = "${var.resource_name_prefix}-s3-public-buckets"
   role          = aws_iam_role.s3-public-buckets.arn
-  handler       = "s3-public-buckets"
-
-  runtime = "go1.x"
+  handler       = "bootstrap"
+  runtime       = "provided.al2023"
+  architectures = ["arm64"]
 
   depends_on = [
     aws_iam_role_policy_attachment.s3-public-buckets,
@@ -390,9 +390,9 @@ resource "aws_lambda_function" "s3-lifecycle" {
   s3_key        = "lambdas/s3-lifecycle.zip"
   function_name = "${var.resource_name_prefix}-s3-lifecycle"
   role          = aws_iam_role.config-s3-lifecycle.arn
-  handler       = "s3-lifecycle"
-
-  runtime = "go1.x"
+  handler       = "bootstrap"
+  runtime       = "provided.al2023"
+  architectures = ["arm64"]
 
   depends_on = [
     aws_iam_role_policy_attachment.config-s3-lifecycle,
@@ -406,9 +406,9 @@ resource "aws_lambda_function" "sg-public-access-egress" {
   s3_key        = "lambdas/sg-public-access-egress.zip"
   function_name = "${var.resource_name_prefix}-sg-public-access-egress"
   role          = aws_iam_role.sg-public-access-egress.arn
-  handler       = "sg-public-access-egress"
-
-  runtime = "go1.x"
+  handler       = "bootstrap"
+  runtime       = "provided.al2023"
+  architectures = ["arm64"]
 
   depends_on = [
     aws_iam_role_policy_attachment.sg-public-access-egress,
@@ -422,9 +422,9 @@ resource "aws_lambda_function" "s3-vpc-traffic-only" {
   s3_key        = "lambdas/s3-vpc-traffic-only.zip"
   function_name = "${var.resource_name_prefix}-s3-vpc-traffic-only"
   role          = aws_iam_role.s3-vpc-traffic-only.arn
-  handler       = "s3-vpc-traffic-only"
-
-  runtime = "go1.x"
+  handler       = "bootstrap"
+  runtime       = "provided.al2023"
+  architectures = ["arm64"]
 
   depends_on = [
     aws_iam_role_policy_attachment.s3-vpc-traffic-only,
